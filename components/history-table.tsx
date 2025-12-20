@@ -4,9 +4,10 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { History, Search } from "lucide-react"
+import { History, Search, ChevronLeft, ChevronRight } from "lucide-react"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface HistoryLog {
   id: number
@@ -20,26 +21,50 @@ interface HistoryLog {
   keterangan: string
 }
 
+interface ApiResponse {
+  data: HistoryLog[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 interface HistoryTableProps {
   refreshTrigger: number
   searchTerm?: string
 }
 
-export function HistoryTable({ refreshTrigger }: HistoryTableProps) {
+export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }: HistoryTableProps) {
   const [history, setHistory] = useState<HistoryLog[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(0)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [totalItems, setTotalItems] = useState(0)
+  const [localSearchTerm, setLocalSearchTerm] = useState("")
+
+  // Sinkronkan searchTerm eksternal dengan state lokal
+  useEffect(() => {
+    setLocalSearchTerm(externalSearchTerm || "")
+    setCurrentPage(0) // Reset ke halaman pertama saat pencarian berubah
+  }, [externalSearchTerm])
 
   const fetchHistory = async () => {
     try {
-      let url = "/api/history"
-      if (searchTerm) {
-        url += `?part_no=${encodeURIComponent(searchTerm)}`
+      setLoading(true)
+      const offset = currentPage * itemsPerPage
+
+      let url = `/api/history?limit=${itemsPerPage}&offset=${offset}`
+      if (localSearchTerm) {
+        url += `&part_no=${encodeURIComponent(localSearchTerm)}`
       }
 
       const response = await fetch(url)
-      const data = await response.json()
-      setHistory(Array.isArray(data) ? data : [])
+      if (!response.ok) {
+        throw new Error('Gagal mengambil data history')
+      }
+      const result: ApiResponse = await response.json()
+
+      setHistory(result.data || [])
+      setTotalItems(result.total || 0)
     } catch (error) {
       console.error("Error fetching history:", error)
       setHistory([])
@@ -50,15 +75,27 @@ export function HistoryTable({ refreshTrigger }: HistoryTableProps) {
 
   useEffect(() => {
     fetchHistory()
-  }, [refreshTrigger, searchTerm])
+  }, [refreshTrigger, currentPage, itemsPerPage, localSearchTerm])
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchHistory()
-    }, 500)
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
 
-    return () => clearTimeout(timer)
-  }, [searchTerm])
+  const goToPreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1)
+    }
+  }
+
+  const handleItemsPerPageChange = (value: string) => {
+    const newItemsPerPage = parseInt(value)
+    setItemsPerPage(newItemsPerPage)
+    setCurrentPage(0) // Reset ke halaman pertama saat mengganti jumlah item per halaman
+  }
 
   return (
     <Card>
@@ -67,70 +104,123 @@ export function HistoryTable({ refreshTrigger }: HistoryTableProps) {
           <History className="h-5 w-5" />
           Riwayat Transaksi
         </CardTitle>
-        <CardDescription>History semua aktivitas masuk dan keluar barang</CardDescription>
+        <CardDescription>History semua aktivitas masuk dan keluar barang (1 minggu terakhir)</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="mb-4">
-          <div className="relative">
+        <div className="mb-4 flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-grow">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Cari berdasarkan Part No..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={localSearchTerm}
+              onChange={(e) => {
+                setLocalSearchTerm(e.target.value)
+                setCurrentPage(0) // Reset ke halaman pertama saat pencarian berubah
+              }}
               className="pl-9"
             />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Tampilkan:</span>
+            <Select
+              value={itemsPerPage.toString()}
+              onValueChange={handleItemsPerPageChange}
+            >
+              <SelectTrigger className="w-[80px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading...</div>
-        ) : history.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">Belum ada riwayat transaksi</div>
+        ) : Array.isArray(history) && history.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">Belum ada riwayat transaksi dalam 1 minggu terakhir</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">Waktu</th>
-                  <th className="text-left py-3 px-4 font-medium">Part No</th>
-                  <th className="text-left py-3 px-4 font-medium">Nama Part</th>
-                  <th className="text-left py-3 px-4 font-medium">Customer</th>
-                  <th className="text-left py-3 px-4 font-medium">Rak</th>
-                  <th className="text-left py-3 px-4 font-medium">Tipe</th>
-                  <th className="text-left py-3 px-4 font-medium">Jumlah</th>
-                  <th className="text-left py-3 px-4 font-medium">Keterangan</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history && Array.isArray(history) ? (
-                  history.map((log) => (
-                    <tr key={log.id} className="border-b hover:bg-muted/50">
-                      <td className="py-3 px-4 text-sm">
-                        {format(new Date(log.waktu_kejadian), "dd MMM yyyy HH:mm", { locale: id })}
-                      </td>
-                      <td className="py-3 px-4 font-mono text-sm">{log.part_no}</td>
-                      <td className="py-3 px-4 text-sm">{log.nama_part}</td>
-                      <td className="py-3 px-4 text-sm">{log.nama_customer || '-'}</td>
-                      <td className="py-3 px-4 font-mono text-sm">{log.alamat_rak}</td>
-                      <td className="py-3 px-4">
-                        <Badge variant={log.tipe === "IN" ? "default" : "secondary"}>
-                          {log.tipe === "IN" ? "MASUK" : "KELUAR"}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-4 text-sm">{log.jumlah}</td>
-                      <td className="py-3 px-4 text-sm text-muted-foreground">{log.keterangan}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={8} className="py-3 px-4 text-center text-muted-foreground">
-                      Tidak ada data history
-                    </td>
+          <>
+            <div className="overflow-x-auto mb-4">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Waktu</th>
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Part No</th>
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Nama Part</th>
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Customer</th>
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Rak</th>
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Tipe</th>
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Jumlah</th>
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Keterangan</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {Array.isArray(history) && history.length > 0 ? (
+                    history.map((log) => (
+                      <tr key={log.id} className="border-b hover:bg-muted/50">
+                        <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">
+                          {format(new Date(log.waktu_kejadian), "dd MMM yyyy HH:mm", { locale: id })}
+                        </td>
+                        <td className="py-2 px-2 sm:py-3 sm:px-4 font-mono text-xs sm:text-sm">{log.part_no}</td>
+                        <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.nama_part}</td>
+                        <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.nama_customer || '-'}</td>
+                        <td className="py-2 px-2 sm:py-3 sm:px-4 font-mono text-xs sm:text-sm">{log.alamat_rak}</td>
+                        <td className="py-2 px-2 sm:py-3 sm:px-4">
+                          <Badge variant={log.tipe === "IN" ? "default" : "secondary"}>
+                            {log.tipe === "IN" ? "MASUK" : "KELUAR"}
+                          </Badge>
+                        </td>
+                        <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.jumlah}</td>
+                        <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm text-muted-foreground">{log.keterangan}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="py-2 px-2 sm:py-3 sm:px-4 text-center text-xs sm:text-sm text-muted-foreground">
+                        Tidak ada data history
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Menampilkan {(currentPage * itemsPerPage) + 1} - {Math.min((currentPage + 1) * itemsPerPage, totalItems)} dari {totalItems} entri
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={goToPreviousPage}
+                  disabled={currentPage === 0}
+                  className={`p-2 rounded-md ${currentPage === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted'}`}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+
+                <span className="text-sm">
+                  Halaman {currentPage + 1} dari {totalPages || 1}
+                </span>
+
+                <button
+                  onClick={goToNextPage}
+                  disabled={currentPage === totalPages - 1 || totalPages === 0}
+                  className={`p-2 rounded-md ${currentPage === totalPages - 1 || totalPages === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted'}`}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>

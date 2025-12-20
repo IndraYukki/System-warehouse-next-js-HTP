@@ -15,11 +15,11 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-6 sm:py-10 px-4">
       <Card>
         <CardHeader className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <CardTitle className="text-2xl">Riwayat Transaksi</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl">Riwayat Transaksi</CardTitle>
             <CardDescription>Histori semua aktivitas masuk dan keluar barang</CardDescription>
           </div>
           <div className="flex items-end justify-end">
@@ -35,7 +35,7 @@ export default function HistoryPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <HistoryTable 
+          <HistoryTable
             refreshTrigger={refreshTrigger}
             searchTerm={searchTerm}
           />

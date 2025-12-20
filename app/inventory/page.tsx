@@ -15,11 +15,11 @@ export default function InventoryPage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-6 sm:py-10 px-4">
       <Card>
         <CardHeader className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <CardTitle className="text-2xl">Inventory Barang</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl">Inventory Barang</CardTitle>
             <CardDescription>Daftar semua barang yang tersedia di gudang</CardDescription>
           </div>
           <div className="flex items-end justify-end">
@@ -35,7 +35,7 @@ export default function InventoryPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <InventoryTable 
+          <InventoryTable
             refreshTrigger={refreshTrigger}
             searchTerm={searchTerm}
           />

@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const search = searchParams.get("search")
 
   try {
+    // Query untuk mendapatkan data inventory lengkap dengan total per part
     let query = `
       SELECT
         i.id,
@@ -16,11 +17,19 @@ export async function GET(request: Request) {
         i.alamat_rak,
         mr.zona,
         i.jumlah,
-        i.tgl_masuk
+        i.tgl_masuk,
+        totals.total_jumlah
       FROM inventory i
       LEFT JOIN master_parts mp ON i.part_no = mp.part_no
       LEFT JOIN customers c ON i.customer_id = c.id
       LEFT JOIN master_racks mr ON i.alamat_rak = mr.alamat_rak
+      LEFT JOIN (
+        SELECT
+          part_no,
+          SUM(jumlah) as total_jumlah
+        FROM inventory
+        GROUP BY part_no
+      ) totals ON i.part_no = totals.part_no
     `
 
     const params: string[] = []

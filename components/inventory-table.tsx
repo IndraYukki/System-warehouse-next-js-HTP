@@ -15,6 +15,7 @@ interface InventoryItem {
   zona: string
   jumlah: number
   tgl_masuk: string
+  total_jumlah: number
 }
 
 interface InventoryTableProps {
@@ -65,33 +66,35 @@ export function InventoryTable({ refreshTrigger, searchTerm }: InventoryTablePro
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">Part No</th>
-                  <th className="text-left py-3 px-4 font-medium">Nama Part</th>
-                  <th className="text-left py-3 px-4 font-medium">Customer</th>
-                  <th className="text-left py-3 px-4 font-medium">Alamat Rak</th>
-                  <th className="text-left py-3 px-4 font-medium">Zona</th>
-                  <th className="text-left py-3 px-4 font-medium">Jumlah</th>
-                  <th className="text-left py-3 px-4 font-medium">Tanggal Masuk</th>
+                  <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Part No</th>
+                  <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Nama Part</th>
+                  <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Customer</th>
+                  <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Alamat Rak</th>
+                  <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Zona</th>
+                  <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Jumlah</th>
+                  <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Total Jumlah</th>
+                  <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Tanggal Masuk</th>
                 </tr>
               </thead>
               <tbody>
                 {inventory && Array.isArray(inventory) ? (
                   inventory.map((item) => (
                     <tr key={item.id} className="border-b hover:bg-muted/50">
-                      <td className="py-3 px-4 font-mono text-sm">{item.part_no}</td>
-                      <td className="py-3 px-4 text-sm">{item.nama_part}</td>
-                      <td className="py-3 px-4 text-sm">{item.nama_customer || '-'}</td>
-                      <td className="py-3 px-4 font-mono text-sm">{item.alamat_rak}</td>
-                      <td className="py-3 px-4 text-sm">{item.zona}</td>
-                      <td className="py-3 px-4 text-sm font-medium">{item.jumlah}</td>
-                      <td className="py-3 px-4 text-sm">
+                      <td className="py-2 px-2 sm:py-3 sm:px-4 font-mono text-xs sm:text-sm">{item.part_no}</td>
+                      <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{item.nama_part}</td>
+                      <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{item.nama_customer || '-'}</td>
+                      <td className="py-2 px-2 sm:py-3 sm:px-4 font-mono text-xs sm:text-sm">{item.alamat_rak}</td>
+                      <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{item.zona}</td>
+                      <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm font-medium">{item.jumlah}</td>
+                      <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm font-medium">{item.total_jumlah}</td>
+                      <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">
                         {format(new Date(item.tgl_masuk), "dd MMM yyyy HH:mm", { locale: id })}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="py-3 px-4 text-center text-muted-foreground">
+                    <td colSpan={8} className="py-2 px-2 sm:py-3 sm:px-4 text-center text-xs sm:text-sm text-muted-foreground">
                       Tidak ada data inventory
                     </td>
                   </tr>
