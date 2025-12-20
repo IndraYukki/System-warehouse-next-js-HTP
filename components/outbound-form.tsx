@@ -8,8 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { PackageMinus, Scan } from "lucide-react"
-import { Scanner } from "@/components/scanner"
+import { PackageMinus, Copy } from "lucide-react"
 
 interface OutboundFormProps {
   onSuccess: () => void
@@ -33,8 +32,6 @@ export function OutboundForm({ onSuccess }: OutboundFormProps) {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [partValid, setPartValid] = useState<boolean | null>(null) // null = belum dicek, true = valid, false = tidak valid
-  const [scannerOpen, setScannerOpen] = useState<boolean>(false)
-
 
   // Fungsi untuk mencari informasi part berdasarkan part number
   const fetchPartInfo = async (partNumber: string) => {
@@ -76,19 +73,6 @@ export function OutboundForm({ onSuccess }: OutboundFormProps) {
       setPartValid(null)
     }
   }, [partNo])
-
-  // Fungsi untuk membuka scanner
-  const openPartNoScanner = () => {
-    setScannerOpen(true);
-  }
-
-  // Fungsi untuk menangani hasil scan
-  const handleScan = (result?: string) => {
-    if (result) {
-      setPartNo(result.toUpperCase());
-    }
-    setScannerOpen(false);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -176,21 +160,31 @@ export function OutboundForm({ onSuccess }: OutboundFormProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={openPartNoScanner}
+                onClick={async () => {
+                  try {
+                    if (navigator.clipboard) {
+                      const text = await navigator.clipboard.readText();
+                      if (text && text.trim() !== '') {
+                        setPartNo(text.trim().toUpperCase());
+                      } else {
+                        alert('Tidak ada teks di clipboard. Silakan salin hasil scan terlebih dahulu.');
+                      }
+                    } else {
+                      alert('Browser Anda tidak mendukung pembacaan clipboard.');
+                    }
+                  } catch (err) {
+                    console.error('Error reading clipboard:', err);
+                    alert('Gagal membaca dari clipboard. Silakan pastikan izin akses diberikan.');
+                  }
+                }}
                 className="shrink-0"
               >
-                <Scan className="h-4 w-4" />
+                <Copy className="h-4 w-4" />
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">Lokasi rak akan dicari otomatis oleh sistem</p>
           </div>
 
-          {/* Scanner Modal */}
-          <Scanner
-            isOpen={scannerOpen}
-            onClose={handleScan}
-            title="Scan Part Number"
-          />
 
           <div className="space-y-2">
             <Label htmlFor="jumlah-out">Jumlah *</Label>

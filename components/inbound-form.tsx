@@ -8,8 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { PackagePlus, Scan } from "lucide-react"
-import { Scanner } from "@/components/scanner"
+import { PackagePlus, Copy } from "lucide-react"
 
 interface InboundFormProps {
   onSuccess: () => void
@@ -34,7 +33,6 @@ export function InboundForm({ onSuccess }: InboundFormProps) {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [partValid, setPartValid] = useState<boolean | null>(null) // null = belum dicek, true = valid, false = tidak valid
-  const [scannerOpen, setScannerOpen] = useState<"partNo" | "alamatRak" | null>(null)
 
 
   // Fungsi untuk mencari informasi part berdasarkan part number
@@ -131,26 +129,6 @@ export function InboundForm({ onSuccess }: InboundFormProps) {
     }
   }
 
-  // Fungsi untuk membuka scanner
-  const openPartNoScanner = () => {
-    setScannerOpen("partNo");
-  }
-
-  const openAlamatRakScanner = () => {
-    setScannerOpen("alamatRak");
-  }
-
-  // Fungsi untuk menangani hasil scan
-  const handleScan = (result?: string) => {
-    if (result) { // Hanya proses jika ada hasil scan
-      if (scannerOpen === "partNo") {
-        setPartNo(result.toUpperCase());
-      } else if (scannerOpen === "alamatRak") {
-        setAlamatRak(result.toUpperCase());
-      }
-    }
-    setScannerOpen(null);
-  };
 
   return (
     <Card>
@@ -187,10 +165,26 @@ export function InboundForm({ onSuccess }: InboundFormProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={openPartNoScanner}
+                onClick={async () => {
+                  try {
+                    if (navigator.clipboard) {
+                      const text = await navigator.clipboard.readText();
+                      if (text && text.trim() !== '') {
+                        setPartNo(text.trim().toUpperCase());
+                      } else {
+                        alert('Tidak ada teks di clipboard. Silakan salin hasil scan terlebih dahulu.');
+                      }
+                    } else {
+                      alert('Browser Anda tidak mendukung pembacaan clipboard.');
+                    }
+                  } catch (err) {
+                    console.error('Error reading clipboard:', err);
+                    alert('Gagal membaca dari clipboard. Silakan pastikan izin akses diberikan.');
+                  }
+                }}
                 className="shrink-0"
               >
-                <Scan className="h-4 w-4" />
+                <Copy className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -209,20 +203,30 @@ export function InboundForm({ onSuccess }: InboundFormProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={openAlamatRakScanner}
+                onClick={async () => {
+                  try {
+                    if (navigator.clipboard) {
+                      const text = await navigator.clipboard.readText();
+                      if (text && text.trim() !== '') {
+                        setAlamatRak(text.trim().toUpperCase());
+                      } else {
+                        alert('Tidak ada teks di clipboard. Silakan salin hasil scan terlebih dahulu.');
+                      }
+                    } else {
+                      alert('Browser Anda tidak mendukung pembacaan clipboard.');
+                    }
+                  } catch (err) {
+                    console.error('Error reading clipboard:', err);
+                    alert('Gagal membaca dari clipboard. Silakan pastikan izin akses diberikan.');
+                  }
+                }}
                 className="shrink-0"
               >
-                <Scan className="h-4 w-4" />
+                <Copy className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          {/* Scanner Modal */}
-          <Scanner
-            isOpen={scannerOpen === "partNo" || scannerOpen === "alamatRak"}
-            onClose={handleScan}
-            title={scannerOpen === "partNo" ? "Scan Part Number" : "Scan Alamat Rak"}
-          />
 
           <div className="space-y-2">
             <Label htmlFor="jumlah-in">Jumlah *</Label>
