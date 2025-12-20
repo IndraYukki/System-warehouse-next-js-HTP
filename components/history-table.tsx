@@ -13,13 +13,16 @@ interface HistoryLog {
   part_no: string
   nama_part: string
   alamat_rak: string
+  nama_customer: string
   tipe: "IN" | "OUT"
+  jumlah: number
   waktu_kejadian: string
   keterangan: string
 }
 
 interface HistoryTableProps {
   refreshTrigger: number
+  searchTerm?: string
 }
 
 export function HistoryTable({ refreshTrigger }: HistoryTableProps) {
@@ -29,13 +32,17 @@ export function HistoryTable({ refreshTrigger }: HistoryTableProps) {
 
   const fetchHistory = async () => {
     try {
-      const url = searchTerm ? `/api/history?part_no=${encodeURIComponent(searchTerm)}` : "/api/history"
+      let url = "/api/history"
+      if (searchTerm) {
+        url += `?part_no=${encodeURIComponent(searchTerm)}`
+      }
 
       const response = await fetch(url)
       const data = await response.json()
-      setHistory(data)
+      setHistory(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("Error fetching history:", error)
+      setHistory([])
     } finally {
       setLoading(false)
     }
@@ -43,7 +50,7 @@ export function HistoryTable({ refreshTrigger }: HistoryTableProps) {
 
   useEffect(() => {
     fetchHistory()
-  }, [refreshTrigger])
+  }, [refreshTrigger, searchTerm])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -87,28 +94,40 @@ export function HistoryTable({ refreshTrigger }: HistoryTableProps) {
                   <th className="text-left py-3 px-4 font-medium">Waktu</th>
                   <th className="text-left py-3 px-4 font-medium">Part No</th>
                   <th className="text-left py-3 px-4 font-medium">Nama Part</th>
+                  <th className="text-left py-3 px-4 font-medium">Customer</th>
                   <th className="text-left py-3 px-4 font-medium">Rak</th>
                   <th className="text-left py-3 px-4 font-medium">Tipe</th>
+                  <th className="text-left py-3 px-4 font-medium">Jumlah</th>
                   <th className="text-left py-3 px-4 font-medium">Keterangan</th>
                 </tr>
               </thead>
               <tbody>
-                {history.map((log) => (
-                  <tr key={log.id} className="border-b hover:bg-muted/50">
-                    <td className="py-3 px-4 text-sm">
-                      {format(new Date(log.waktu_kejadian), "dd MMM yyyy HH:mm", { locale: id })}
+                {history && Array.isArray(history) ? (
+                  history.map((log) => (
+                    <tr key={log.id} className="border-b hover:bg-muted/50">
+                      <td className="py-3 px-4 text-sm">
+                        {format(new Date(log.waktu_kejadian), "dd MMM yyyy HH:mm", { locale: id })}
+                      </td>
+                      <td className="py-3 px-4 font-mono text-sm">{log.part_no}</td>
+                      <td className="py-3 px-4 text-sm">{log.nama_part}</td>
+                      <td className="py-3 px-4 text-sm">{log.nama_customer || '-'}</td>
+                      <td className="py-3 px-4 font-mono text-sm">{log.alamat_rak}</td>
+                      <td className="py-3 px-4">
+                        <Badge variant={log.tipe === "IN" ? "default" : "secondary"}>
+                          {log.tipe === "IN" ? "MASUK" : "KELUAR"}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4 text-sm">{log.jumlah}</td>
+                      <td className="py-3 px-4 text-sm text-muted-foreground">{log.keterangan}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="py-3 px-4 text-center text-muted-foreground">
+                      Tidak ada data history
                     </td>
-                    <td className="py-3 px-4 font-mono text-sm">{log.part_no}</td>
-                    <td className="py-3 px-4 text-sm">{log.nama_part}</td>
-                    <td className="py-3 px-4 font-mono text-sm">{log.alamat_rak}</td>
-                    <td className="py-3 px-4">
-                      <Badge variant={log.tipe === "IN" ? "default" : "secondary"}>
-                        {log.tipe === "IN" ? "MASUK" : "KELUAR"}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4 text-sm text-muted-foreground">{log.keterangan}</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

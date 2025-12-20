@@ -1,51 +1,75 @@
-"use client"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { PackagePlus, PackageMinus, Package, History } from "lucide-react"
 
-import { useState } from "react"
-import { InboundForm } from "@/components/inbound-form"
-import { OutboundForm } from "@/components/outbound-form"
-import { HistoryTable } from "@/components/history-table"
-import { InventoryTable } from "@/components/inventory-table"
-import { Warehouse } from "lucide-react"
-
-export default function Home() {
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
-
-  const handleTransactionSuccess = () => {
-    setRefreshTrigger((prev) => prev + 1)
-  }
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <Warehouse className="h-8 w-8 text-primary" />
-            <div>
-              <h1 className="text-2xl font-bold">FG Warehouse System</h1>
-              <p className="text-sm text-muted-foreground">Sistem Manajemen Gudang dengan Otomasi Penuh</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid gap-6 lg:grid-cols-2 mb-8">
-          <InboundForm onSuccess={handleTransactionSuccess} />
-          <OutboundForm onSuccess={handleTransactionSuccess} />
+    <div className="container mx-auto py-10">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-bold mb-2">Sistem Gudang FG</h1>
+          <p className="text-muted-foreground">Sistem manajemen gudang untuk barang finished goods</p>
         </div>
 
-        <div className="space-y-6">
-          <InventoryTable refreshTrigger={refreshTrigger} />
-          <HistoryTable refreshTrigger={refreshTrigger} />
-        </div>
-      </main>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader className="text-center">
+              <PackagePlus className="h-10 w-10 mx-auto text-blue-500 mb-3" />
+              <CardTitle>Inbound</CardTitle>
+              <CardDescription>Pemasukan barang ke gudang</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full">
+                <Link href="/inbound">Tambah Barang Masuk</Link>
+              </Button>
+            </CardContent>
+          </Card>
 
-      <footer className="border-t mt-12">
-        <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          <p>✅ Otomatis tambah barang saat stock masuk • ✅ Otomatis kurangi barang saat stock keluar</p>
-          <p className="mt-1">⏰ Timestamp otomatis • 🔒 Validasi sistem untuk cegah error</p>
+          <Card>
+            <CardHeader className="text-center">
+              <PackageMinus className="h-10 w-10 mx-auto text-red-500 mb-3" />
+              <CardTitle>Outbound</CardTitle>
+              <CardDescription>Pengeluaran barang dari gudang</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full">
+                <Link href="/outbound">Keluarkan Barang</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="text-center">
+              <Package className="h-10 w-10 mx-auto text-green-500 mb-3" />
+              <CardTitle>Inventory</CardTitle>
+              <CardDescription>Daftar barang yang tersedia</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/inventory">Lihat Inventory</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="text-center">
+              <History className="h-10 w-10 mx-auto text-purple-500 mb-3" />
+              <CardTitle>History</CardTitle>
+              <CardDescription>Riwayat transaksi barang</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/history">Lihat Riwayat</Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
-      </footer>
+
+        <div className="mt-10 text-center text-sm text-muted-foreground">
+          <p>Sistem manajemen gudang untuk memudahkan pengelolaan barang finished goods</p>
+        </div>
+      </div>
     </div>
   )
 }

@@ -10,22 +10,29 @@ interface InventoryItem {
   id: number
   part_no: string
   nama_part: string
+  nama_customer: string
   alamat_rak: string
   zona: string
+  jumlah: number
   tgl_masuk: string
 }
 
 interface InventoryTableProps {
   refreshTrigger: number
+  searchTerm?: string
 }
 
-export function InventoryTable({ refreshTrigger }: InventoryTableProps) {
+export function InventoryTable({ refreshTrigger, searchTerm }: InventoryTableProps) {
   const [inventory, setInventory] = useState<InventoryItem[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchInventory = async () => {
     try {
-      const response = await fetch("/api/inventory")
+      let url = "/api/inventory"
+      if (searchTerm) {
+        url += `?search=${encodeURIComponent(searchTerm)}`
+      }
+      const response = await fetch(url)
       const data = await response.json()
       setInventory(data)
     } catch (error) {
@@ -37,7 +44,7 @@ export function InventoryTable({ refreshTrigger }: InventoryTableProps) {
 
   useEffect(() => {
     fetchInventory()
-  }, [refreshTrigger])
+  }, [refreshTrigger, searchTerm])
 
   return (
     <Card>
@@ -60,23 +67,35 @@ export function InventoryTable({ refreshTrigger }: InventoryTableProps) {
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 font-medium">Part No</th>
                   <th className="text-left py-3 px-4 font-medium">Nama Part</th>
+                  <th className="text-left py-3 px-4 font-medium">Customer</th>
                   <th className="text-left py-3 px-4 font-medium">Alamat Rak</th>
                   <th className="text-left py-3 px-4 font-medium">Zona</th>
+                  <th className="text-left py-3 px-4 font-medium">Jumlah</th>
                   <th className="text-left py-3 px-4 font-medium">Tanggal Masuk</th>
                 </tr>
               </thead>
               <tbody>
-                {inventory.map((item) => (
-                  <tr key={item.id} className="border-b hover:bg-muted/50">
-                    <td className="py-3 px-4 font-mono text-sm">{item.part_no}</td>
-                    <td className="py-3 px-4 text-sm">{item.nama_part}</td>
-                    <td className="py-3 px-4 font-mono text-sm">{item.alamat_rak}</td>
-                    <td className="py-3 px-4 text-sm">{item.zona}</td>
-                    <td className="py-3 px-4 text-sm">
-                      {format(new Date(item.tgl_masuk), "dd MMM yyyy HH:mm", { locale: id })}
+                {inventory && Array.isArray(inventory) ? (
+                  inventory.map((item) => (
+                    <tr key={item.id} className="border-b hover:bg-muted/50">
+                      <td className="py-3 px-4 font-mono text-sm">{item.part_no}</td>
+                      <td className="py-3 px-4 text-sm">{item.nama_part}</td>
+                      <td className="py-3 px-4 text-sm">{item.nama_customer || '-'}</td>
+                      <td className="py-3 px-4 font-mono text-sm">{item.alamat_rak}</td>
+                      <td className="py-3 px-4 text-sm">{item.zona}</td>
+                      <td className="py-3 px-4 text-sm font-medium">{item.jumlah}</td>
+                      <td className="py-3 px-4 text-sm">
+                        {format(new Date(item.tgl_masuk), "dd MMM yyyy HH:mm", { locale: id })}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="py-3 px-4 text-center text-muted-foreground">
+                      Tidak ada data inventory
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

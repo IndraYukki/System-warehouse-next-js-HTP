@@ -17,14 +17,24 @@ interface InboundFormProps {
 export function InboundForm({ onSuccess }: InboundFormProps) {
   const [partNo, setPartNo] = useState("")
   const [alamatRak, setAlamatRak] = useState("")
+  const [jumlah, setJumlah] = useState("1")
   const [keterangan, setKeterangan] = useState("")
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage(null)
+
+    // Validasi jumlah
+    const jumlahInt = parseInt(jumlah)
+    if (isNaN(jumlahInt) || jumlahInt <= 0) {
+      setMessage({ type: "error", text: "Jumlah harus berupa angka positif!" })
+      setLoading(false)
+      return
+    }
 
     try {
       const response = await fetch("/api/inbound", {
@@ -33,6 +43,7 @@ export function InboundForm({ onSuccess }: InboundFormProps) {
         body: JSON.stringify({
           part_no: partNo,
           alamat_rak: alamatRak,
+          jumlah: jumlahInt,
           keterangan,
         }),
       })
@@ -43,6 +54,7 @@ export function InboundForm({ onSuccess }: InboundFormProps) {
         setMessage({ type: "success", text: data.message })
         setPartNo("")
         setAlamatRak("")
+        setJumlah("1")
         setKeterangan("")
         onSuccess()
       } else {
@@ -84,6 +96,20 @@ export function InboundForm({ onSuccess }: InboundFormProps) {
               value={alamatRak}
               onChange={(e) => setAlamatRak(e.target.value.toUpperCase())}
               placeholder="Contoh: A01"
+              required
+            />
+          </div>
+
+
+          <div className="space-y-2">
+            <Label htmlFor="jumlah-in">Jumlah *</Label>
+            <Input
+              id="jumlah-in"
+              type="number"
+              value={jumlah}
+              onChange={(e) => setJumlah(e.target.value)}
+              placeholder="Contoh: 10"
+              min="1"
               required
             />
           </div>
