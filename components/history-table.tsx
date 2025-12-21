@@ -4,10 +4,12 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { History, Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { History, Search, ChevronLeft, ChevronRight, Download } from "lucide-react"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 interface HistoryLog {
   id: number
@@ -54,7 +56,7 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
 
       let url = `/api/history?limit=${itemsPerPage}&offset=${offset}`
       if (localSearchTerm) {
-        url += `&part_no=${encodeURIComponent(localSearchTerm)}`
+        url += `&search=${encodeURIComponent(localSearchTerm)}`
       }
 
       const response = await fetch(url)
@@ -97,21 +99,57 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
     setCurrentPage(0) // Reset ke halaman pertama saat mengganti jumlah item per halaman
   }
 
+  const handleExport = () => {
+    const url = "/api/history/export";
+    window.open(url, "_blank");
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <History className="h-5 w-5" />
-          Riwayat Transaksi
-        </CardTitle>
-        <CardDescription>History semua aktivitas masuk dan keluar barang (1 minggu terakhir)</CardDescription>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export CSV
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Export Data History</DialogTitle>
+                  <DialogDescription>
+                    Pilih opsi ekspor data history transaksi ke file CSV
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <Button
+                    onClick={handleExport}
+                    className="w-full"
+                  >
+                    Export Semua Data
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Riwayat Transaksi
+            </CardTitle>
+            <CardDescription>History semua aktivitas masuk dan keluar barang (1 minggu terakhir)</CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Cari berdasarkan Part No..."
+              placeholder="Cari berdasarkan Part No atau Nama Part..."
               value={localSearchTerm}
               onChange={(e) => {
                 setLocalSearchTerm(e.target.value)
@@ -152,9 +190,9 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
                 <thead>
                   <tr className="border-b">
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Waktu</th>
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Customer</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Part No</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Nama Part</th>
-                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Customer</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Rak</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Tipe</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Jumlah</th>
@@ -168,9 +206,9 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
                         <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">
                           {format(new Date(log.waktu_kejadian), "dd MMM yyyy HH:mm", { locale: id })}
                         </td>
+                        <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.nama_customer || '-'}</td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4 font-mono text-xs sm:text-sm">{log.part_no}</td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.nama_part}</td>
-                        <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.nama_customer || '-'}</td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4 font-mono text-xs sm:text-sm">{log.alamat_rak}</td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4">
                           <Badge variant={log.tipe === "IN" ? "default" : "secondary"}>

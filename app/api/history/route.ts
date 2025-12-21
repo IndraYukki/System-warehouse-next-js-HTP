@@ -4,7 +4,7 @@ import { getPool } from "@/lib/db"
 export async function GET(request: Request) {
   const pool = getPool()
   const { searchParams } = new URL(request.url)
-  const part_no = searchParams.get("part_no")
+  const search = searchParams.get("search")
   const limit = Math.min(parseInt(searchParams.get("limit") || "10"), 100) // Maksimal 100
   const offset = parseInt(searchParams.get("offset") || "0")
 
@@ -28,12 +28,13 @@ export async function GET(request: Request) {
 
     const params: string[] = []
 
-    // Tambahkan filter jika part_no disediakan
-    if (part_no) {
-      query += " WHERE hl.part_no LIKE ?"
-      params.push(`%${part_no}%`)
+    // Tambahkan filter jika search disediakan
+    if (search) {
+      query += " WHERE hl.part_no LIKE ? OR mp.nama_part LIKE ?"
+      const searchParam = `%${search}%`
+      params.push(searchParam, searchParam)
     } else {
-      // Jika tidak ada pencarian part_no, tambahkan filter 1 minggu terakhir
+      // Jika tidak ada pencarian, tambahkan filter 1 minggu terakhir
       query += " WHERE hl.waktu_kejadian >= DATE_SUB(NOW(), INTERVAL 1 WEEK)"
     }
 
@@ -62,16 +63,17 @@ export async function GET(request: Request) {
         LEFT JOIN master_parts mp ON hl.part_no = mp.part_no
         LEFT JOIN customers c ON hl.customer_id = c.id
       `
-      
+
       const fallbackParams: string[] = []
-      if (part_no) {
-        query += " WHERE hl.part_no LIKE ?"
-        fallbackParams.push(`%${part_no}%`)
+      if (search) {
+        query += " WHERE hl.part_no LIKE ? OR mp.nama_part LIKE ?"
+        const searchParam = `%${search}%`
+        fallbackParams.push(searchParam, searchParam)
       }
-      
+
       query += " ORDER BY hl.waktu_kejadian DESC LIMIT ? OFFSET ?"
       fallbackParams.push(limit, offset)
-      
+
       const [fallbackResult] = await pool.query(query, fallbackParams)
       rows = Array.isArray(fallbackResult) ? fallbackResult : []
     }
@@ -80,16 +82,18 @@ export async function GET(request: Request) {
     let countQuery = `
       SELECT COUNT(*) as total
       FROM history_logs hl
+      LEFT JOIN master_parts mp ON hl.part_no = mp.part_no
     `
-    
+
     const countParams: string[] = []
-    if (part_no) {
-      countQuery += " WHERE hl.part_no LIKE ?"
-      countParams.push(`%${part_no}%`)
+    if (search) {
+      countQuery += " WHERE hl.part_no LIKE ? OR mp.nama_part LIKE ?"
+      const searchParam = `%${search}%`
+      countParams.push(searchParam, searchParam)
     } else {
       countQuery += " WHERE hl.waktu_kejadian >= DATE_SUB(NOW(), INTERVAL 1 WEEK)"
     }
-    
+
     let totalCount = 0
     try {
       const [countResult] = await pool.query(countQuery, countParams)
@@ -105,14 +109,16 @@ export async function GET(request: Request) {
       countQuery = `
         SELECT COUNT(*) as total
         FROM history_logs hl
+        LEFT JOIN master_parts mp ON hl.part_no = mp.part_no
       `
-      
+
       const countFallbackParams: string[] = []
-      if (part_no) {
-        countQuery += " WHERE hl.part_no LIKE ?"
-        countFallbackParams.push(`%${part_no}%`)
+      if (search) {
+        countQuery += " WHERE hl.part_no LIKE ? OR mp.nama_part LIKE ?"
+        const searchParam = `%${search}%`
+        countFallbackParams.push(searchParam, searchParam)
       }
-      
+
       const [countFallbackResult] = await pool.query(countQuery, countFallbackParams)
       if (Array.isArray(countFallbackResult) && countFallbackResult.length > 0) {
         const firstRow = countFallbackResult[0]

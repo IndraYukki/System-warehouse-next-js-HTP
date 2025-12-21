@@ -1,12 +1,48 @@
 import { NextResponse } from "next/server"
 import { getPool } from "@/lib/db"
 
-// GET: Mendapatkan semua data master parts
-export async function GET() {
+// GET: Mendapatkan data master parts dengan fitur search dan pagination
+export async function GET(request: Request) {
   const pool = getPool()
+  const { searchParams } = new URL(request.url)
+
+  // Ambil parameter untuk pagination dan search
+  const limit = parseInt(searchParams.get("limit") || "10")
+  const offset = parseInt(searchParams.get("offset") || "0")
+  const search = searchParams.get("search") || ""
+
+  // Validasi bahwa limit dan offset adalah angka yang valid
+  if (isNaN(limit) || limit <= 0) {
+    return NextResponse.json({ error: "Parameter limit harus berupa angka positif" }, { status: 400 })
+  }
+  if (isNaN(offset) || offset < 0) {
+    return NextResponse.json({ error: "Parameter offset harus berupa angka non-negatif" }, { status: 400 })
+  }
 
   try {
-    const [rows] = await pool.query(`
+    // Query untuk menghitung total data
+    let countQuery = `
+      SELECT COUNT(*) as total
+      FROM master_parts mp
+      LEFT JOIN customers c ON mp.customer_id = c.id
+    `
+
+    // Parameter untuk query count
+    let countParams: string[] = []
+
+    // Tambahkan kondisi search jika ada
+    if (search) {
+      countQuery += `
+        WHERE mp.part_no LIKE ? OR mp.nama_part LIKE ?
+      `
+      countParams = [`%${search}%`, `%${search}%`]
+    }
+
+    const [countResult] = await pool.query(countQuery, countParams)
+    const total = (countResult as any)[0].total as number
+
+    // Query untuk mengambil data dengan pagination dan search
+    let query = `
       SELECT
         mp.id,
         mp.part_no,
@@ -17,9 +53,35 @@ export async function GET() {
         c.nama_customer
       FROM master_parts mp
       LEFT JOIN customers c ON mp.customer_id = c.id
+    `
+
+    // Parameter untuk query data
+    let queryParams: string[] = []
+
+    // Tambahkan kondisi search jika ada
+    if (search) {
+      query += `
+        WHERE mp.part_no LIKE ? OR mp.nama_part LIKE ?
+      `
+      queryParams = [`%${search}%`, `%${search}%`]
+    }
+
+    // Urutkan dan tambahkan limit serta offset
+    query += `
       ORDER BY mp.part_no
-    `)
-    return NextResponse.json(Array.isArray(rows) ? rows : [])
+      LIMIT ? OFFSET ?
+    `
+    queryParams.push(limit, offset)
+
+    const [rows] = await pool.query(query, queryParams)
+
+    // Kembalikan data dalam format yang sesuai dengan komponen
+    return NextResponse.json({
+      data: Array.isArray(rows) ? rows : [],
+      total: parseInt(total),
+      limit: limit,
+      offset: offset
+    })
   } catch (error) {
     console.error("Error fetching parts:", error)
     return NextResponse.json({ error: "Gagal mengambil data parts" }, { status: 500 })

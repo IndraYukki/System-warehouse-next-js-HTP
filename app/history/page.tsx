@@ -26,7 +26,7 @@ export default function HistoryPage() {
             <div className="relative w-full md:w-64">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Cari berdasarkan Part No..."
+                placeholder="Cari berdasarkan Part No atau Nama Part..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
