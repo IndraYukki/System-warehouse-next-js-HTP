@@ -22,9 +22,9 @@ export async function POST(request: Request) {
     connection = await pool.getConnection()
     await connection.beginTransaction()
 
-    // 1. Ambil semua inventory items untuk part_no ini
+    // 1. Ambil semua inventory items untuk part_no ini, diurutkan berdasarkan tanggal masuk terlama (FIFO)
     const [allInventoryRows] = await connection.query(
-      "SELECT * FROM inventory WHERE part_no = ? ORDER BY id",
+      "SELECT * FROM inventory WHERE part_no = ? ORDER BY tgl_masuk ASC, id ASC",
       [part_no]
     )
 
