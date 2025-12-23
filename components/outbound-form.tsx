@@ -108,7 +108,7 @@ export function OutboundForm({ onSuccess }: OutboundFormProps) {
       const data = await response.json()
 
       if (response.ok) {
-        setMessage({ type: "success", text: `${data.message} Lokasi: ${data.data.alamat_rak || 'Tidak Tersedia'}` })
+        setMessage({ type: "success", text: data.message })
         setPartNo("")
         setPartName("")
         setJumlah("1")

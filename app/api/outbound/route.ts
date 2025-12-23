@@ -36,16 +36,27 @@ export async function POST(request: Request) {
 
     if (totalStok < jumlah) {
       await connection.rollback()
+      // Mencari rak mana saja yang memiliki stok untuk part ini
+      const rakDenganStok = (allInventoryRows as any[]).filter(item => item.jumlah > 0)
+      const rakInfo = rakDenganStok.map(item => `Rak ${item.alamat_rak}: ${item.jumlah} pcs`).join(', ')
+
+      let errorMessage = `Stok tidak mencukupi! Dibutuhkan: ${jumlah}, Tersedia: ${totalStok}`
+      if (rakInfo) {
+        errorMessage += `. Stok tersedia di: ${rakInfo}`
+      }
+
       return NextResponse.json({
-        error: `Stok tidak mencukupi! Dibutuhkan: ${jumlah}, Tersedia: ${totalStok}`
+        error: errorMessage
       }, { status: 400 })
     }
 
+    // 3. Periksa apakah jumlah yang diminta bisa dipenuhi dari rak-rak yang tersedia (menggunakan FIFO)
     let jumlahYangHarusDikurangi = jumlah
     const itemsYgDiproses = []
+    const allInventoryArray = (allInventoryRows as any[])
 
-    // 3. Loop melalui semua item inventory untuk mengurangi jumlah
-    for (const item of (allInventoryRows as any[])) {
+    // Loop melalui semua item inventory untuk mengurangi jumlah (menggunakan FIFO)
+    for (const item of allInventoryArray) {
       if (jumlahYangHarusDikurangi <= 0) break
 
       const jumlahDikurangiDariItemIni = Math.min(item.jumlah, jumlahYangHarusDikurangi)
@@ -70,10 +81,20 @@ export async function POST(request: Request) {
       jumlahYangHarusDikurangi -= jumlahDikurangiDariItemIni
     }
 
-    // 3. Auto-timestamp menggunakan waktu server
+    // Jika masih ada jumlah yang harus dikurangi setelah semua rak diperiksa
+    if (jumlahYangHarusDikurangi > 0) {
+      await connection.rollback()
+      // Dapatkan informasi rak yang terkait dengan part ini
+      const rakInfo = allInventoryArray.map(item => item.alamat_rak).join(', ')
+      return NextResponse.json({
+        error: `QTY yang diminta tidak tersedia di rak (${rakInfo})`
+      }, { status: 400 })
+    }
+
+    // 4. Auto-timestamp menggunakan waktu server
     const waktuSekarang = new Date()
 
-    // 4. Update status rak jika semua barang di rak itu habis
+    // 5. Update status rak jika semua barang di rak itu habis
     for (const itemProses of itemsYgDiproses) {
       // Cek apakah masih ada barang lain di rak yang sama
       const [otherItemsInRack] = await connection.query(
@@ -87,7 +108,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 5. Catat ke history_logs (buat entri untuk setiap rak yang terlibat)
+    // 6. Catat ke history_logs (buat entri untuk setiap rak yang terlibat)
     for (const itemProses of itemsYgDiproses) {
       if (itemProses.jumlah_dikurangi > 0) { // hanya catat jika benar-benar ada pengurangan
         await connection.query(
@@ -102,14 +123,19 @@ export async function POST(request: Request) {
     // Ambil alamat_rak pertama dari item yang diproses
     const alamat_rak_pertama = itemsYgDiproses.length > 0 ? itemsYgDiproses[0].alamat_rak : ''
 
+    // Buat informasi detail tentang rak mana saja yang digunakan
+    const rakInfo = itemsYgDiproses.map(item => `Rak ${item.alamat_rak}: ${item.jumlah_dikurangi} pcs`).join(', ')
+    const message = `Barang berhasil dikeluarkan dari inventory! Jumlah: ${jumlah}. Detail: ${rakInfo}`
+
     return NextResponse.json({
       success: true,
-      message: `Barang berhasil dikeluarkan dari inventory! Jumlah: ${jumlah}`,
+      message: message,
       data: {
         part_no,
         alamat_rak: alamat_rak_pertama,
         jumlah_keluar: jumlah,
         tgl_keluar: waktuSekarang,
+        rak_detail: itemsYgDiproses // Tambahkan informasi detail rak ke response
       },
     })
   } catch (error) {
