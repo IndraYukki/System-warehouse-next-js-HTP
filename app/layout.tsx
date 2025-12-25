@@ -1,4 +1,5 @@
 import "@/app/globals.css";
+import { NavbarSwitcher } from "@/components/navbar-switcher";
 
 export default function RootLayout({
   children,
@@ -11,7 +12,12 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        {children}
+        <div className="min-h-screen bg-background">
+          <NavbarSwitcher />
+          <main>
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );

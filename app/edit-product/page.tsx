@@ -1,9 +1,5 @@
-import { ProductTable } from "@/components/product-table"
+import { redirect } from "next/navigation";
 
 export default function EditProductPage() {
-  return (
-    <div className="container mx-auto py-10">
-      <ProductTable />
-    </div>
-  )
+  redirect("/admin/edit-product");
 }

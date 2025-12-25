@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PackageMinus, Copy } from "lucide-react"
+import { PartNumberAutocomplete } from "@/components/part-number-autocomplete"
 
 interface OutboundFormProps {
   onSuccess: () => void
@@ -125,6 +126,17 @@ export function OutboundForm({ onSuccess }: OutboundFormProps) {
     }
   }
 
+  const handlePartSelect = (part: any) => {
+    if (part) {
+      setPartNo(part.part_no)
+      setPartName(part.nama_part)
+      setPartValid(true)
+    } else {
+      setPartName("")
+      setPartValid(null)
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -148,40 +160,12 @@ export function OutboundForm({ onSuccess }: OutboundFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="part-no-out">Part Number *</Label>
-            <div className="flex gap-2">
-              <Input
-                id="part-no-out"
-                value={partNo}
-                onChange={(e) => setPartNo(e.target.value.toUpperCase())}
-                placeholder="Contoh: FG001"
-                required
-                className="flex-1"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={async () => {
-                  try {
-                    if (navigator.clipboard) {
-                      const text = await navigator.clipboard.readText();
-                      if (text && text.trim() !== '') {
-                        setPartNo(text.trim().toUpperCase());
-                      } else {
-                        alert('Tidak ada teks di clipboard. Silakan salin hasil scan terlebih dahulu.');
-                      }
-                    } else {
-                      alert('Browser Anda tidak mendukung pembacaan clipboard.');
-                    }
-                  } catch (err) {
-                    console.error('Error reading clipboard:', err);
-                    alert('Gagal membaca dari clipboard. Silakan pastikan izin akses diberikan.');
-                  }
-                }}
-                className="shrink-0"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
+            <PartNumberAutocomplete
+              value={partNo}
+              onChange={setPartNo}
+              onPartSelect={handlePartSelect}
+              placeholder="Contoh: FG001"
+            />
             <p className="text-xs text-muted-foreground">Lokasi rak akan dicari otomatis oleh sistem</p>
           </div>
 

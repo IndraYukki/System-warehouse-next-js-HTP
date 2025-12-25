@@ -1,4 +1,4 @@
-export default function HistoryLayout({
+export default function EditInventoryLayout({
   children,
 }: {
   children: React.ReactNode

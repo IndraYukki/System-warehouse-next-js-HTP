@@ -1,14 +1,22 @@
-import { NextResponse } from "next/server"
-import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
-export async function GET(request: Request) {
-  // Dapatkan cookie dari headers
-  const cookieStore = cookies()
-  const isLoggedIn = cookieStore.get('isLoggedIn')?.value === 'true'
+export async function GET(request: NextRequest) {
+  // Periksa apakah ada cookie 'isLoggedIn' yang menunjukkan status login
+  const cookieStore = cookies();
+  const isLoggedIn = cookieStore.get('isLoggedIn');
 
-  if (isLoggedIn) {
-    return NextResponse.json({ authenticated: true })
+  if (isLoggedIn && isLoggedIn.value === 'true') {
+    // Jika cookie menunjukkan bahwa pengguna sudah login
+    return NextResponse.json({
+      authenticated: true,
+      message: "Pengguna sudah otentikasi"
+    });
   } else {
-    return NextResponse.json({ authenticated: false }, { status: 401 })
+    // Jika tidak ada cookie atau cookie tidak menunjukkan status login
+    return NextResponse.json({
+      authenticated: false,
+      message: "Silakan login untuk mengakses halaman ini"
+    });
   }
 }
