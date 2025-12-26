@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Package, PackagePlus } from "lucide-react"
 
 interface ProductFormProps {
-  onSuccess: () => void
+  onSuccess: (message?: { type: "success" | "error"; text: string }) => void
   initialData?: {
     id?: number
     part_no: string
@@ -92,18 +92,31 @@ export function ProductForm({ onSuccess, initialData }: ProductFormProps) {
       const data = await response.json()
 
       if (response.ok) {
-        setMessage({ type: "success", text: data.message })
+        const successMessage = {
+          type: "success" as const,
+          text: isEdit
+            ? `Produk ${namaPart} berhasil di update`
+            : `Produk ${namaPart} berhasil di tambah ke finishgood kita`
+        }
+        setMessage(successMessage)
         setPartNo("")
         setNamaPart("")
         setDeskripsi("")
         setSatuan("")
         setCustomerId("")
-        onSuccess()
+        onSuccess(successMessage)
       } else {
-        setMessage({ type: "error", text: data.error })
+        const errorMessage = {
+          type: "error" as const,
+          text: data.error || (isEdit ? "Gagal memperbarui produk" : "Gagal menambahkan produk")
+        }
+        setMessage(errorMessage)
+        onSuccess(errorMessage)
       }
     } catch (error) {
-      setMessage({ type: "error", text: "Terjadi kesalahan koneksi" })
+      const errorMessage = { type: "error" as const, text: "Terjadi kesalahan koneksi" }
+      setMessage(errorMessage)
+      onSuccess(errorMessage)
     } finally {
       setLoading(false)
     }

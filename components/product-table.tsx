@@ -36,6 +36,7 @@ export function ProductTable() {
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [totalItems, setTotalItems] = useState(0)
   const [searchTerm, setSearchTerm] = useState("")
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
   const fetchProducts = async () => {
     try {
@@ -88,6 +89,7 @@ export function ProductTable() {
   }
 
   const handleDelete = async (id: number) => {
+    const productToDelete = products.find(p => p.id === id);
     if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
       try {
         const response = await fetch(`/api/master/parts/${id}`, {
@@ -95,31 +97,43 @@ export function ProductTable() {
         })
 
         if (response.ok) {
+          setMessage({ type: "success", text: `Produk ${productToDelete?.nama_part || 'tidak dikenal'} berhasil dihapus dari finishgood kita` })
           fetchProducts() // Refresh data
         } else {
-          alert("Gagal menghapus data")
+          const data = await response.json()
+          setMessage({ type: "error", text: data.error || "Gagal menghapus data" })
         }
       } catch (error) {
         console.error("Error deleting product:", error)
-        alert("Terjadi kesalahan saat menghapus data")
+        setMessage({ type: "error", text: "Terjadi kesalahan saat menghapus data" })
       }
     }
   }
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product)
+    setMessage(null) // Clear any previous messages
     setShowForm(true)
   }
 
   const handleAddNew = () => {
     setEditingProduct(null)
+    setMessage(null) // Clear any previous messages
     setShowForm(true)
   }
 
-  const handleFormSuccess = () => {
+  const handleFormSuccess = (message?: { type: "success" | "error"; text: string }) => {
+    if (message) {
+      setMessage(message);
+    }
     setShowForm(false)
     setEditingProduct(null)
     fetchProducts() // Refresh data
+  }
+
+  const handleBackToList = () => {
+    setShowForm(false)
+    setMessage(null) // Membersihkan pesan saat kembali ke daftar tanpa sukses dari form
   }
 
   if (showForm) {
@@ -129,7 +143,7 @@ export function ProductTable() {
           initialData={editingProduct || undefined}
           onSuccess={handleFormSuccess}
         />
-        <Button variant="outline" onClick={() => setShowForm(false)}>
+        <Button variant="outline" onClick={handleBackToList}>
           Kembali ke Daftar
         </Button>
       </div>
@@ -185,6 +199,20 @@ export function ProductTable() {
             </Select>
           </div>
         </div>
+
+        {message && (
+          <div
+            className={`rounded-md p-4 mb-4 text-sm ${
+              message.type === "success"
+                ? "bg-green-50 text-green-800 border border-green-200"
+                : "bg-red-50 text-red-800 border border-red-200"
+            }`}
+          >
+            <div className="flex items-center">
+              <span className="font-medium">{message.text}</span>
+            </div>
+          </div>
+        )}
 
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading...</div>
