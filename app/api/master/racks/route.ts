@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     // Tambahkan data baru
     await pool.query(
       "INSERT INTO master_racks (alamat_rak, zona, kapasitas, status) VALUES (?, ?, ?, ?)",
-      [alamat_rak, zona, kapasitas || 0, status || 'aktif']
+      [alamat_rak, zona, kapasitas || 0, status || 'available']
     )
 
     return NextResponse.json({

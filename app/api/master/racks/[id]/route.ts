@@ -29,7 +29,7 @@ export async function PUT(
     // Update data
     await pool.query(
       "UPDATE master_racks SET alamat_rak = ?, zona = ?, kapasitas = ?, status = ? WHERE id = ?",
-      [alamat_rak, zona, kapasitas || 0, status || 'aktif', id]
+      [alamat_rak, zona, kapasitas || 0, status || 'available', id]
     )
 
     return NextResponse.json({

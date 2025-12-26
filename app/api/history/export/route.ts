@@ -18,7 +18,9 @@ export async function GET(request: Request) {
         hl.alamat_rak,
         hl.tipe,
         hl.jumlah,
-        hl.keterangan
+        hl.keterangan,
+        hl.total_awal,
+        hl.total_akhir
       FROM history_logs hl
       LEFT JOIN master_parts mp ON hl.part_no = mp.part_no
       LEFT JOIN customers c ON hl.customer_id = c.id
@@ -59,6 +61,8 @@ export async function GET(request: Request) {
         "Tipe": item.tipe,
         "Jumlah": item.jumlah,
         "Keterangan": item.keterangan,
+        "Total Awal": item.total_awal,
+        "Total Akhir": item.total_akhir,
         "ID": item.id,
       };
     });

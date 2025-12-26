@@ -20,7 +20,9 @@ export async function GET(request: Request) {
         hl.tipe,
         hl.jumlah,
         hl.waktu_kejadian,
-        hl.keterangan
+        hl.keterangan,
+        hl.total_awal,
+        hl.total_akhir
       FROM history_logs hl
       LEFT JOIN master_parts mp ON hl.part_no = mp.part_no
       LEFT JOIN customers c ON hl.customer_id = c.id
@@ -58,7 +60,9 @@ export async function GET(request: Request) {
           hl.tipe,
           hl.jumlah,
           hl.waktu_kejadian,
-          hl.keterangan
+          hl.keterangan,
+          hl.total_awal,
+          hl.total_akhir
         FROM history_logs hl
         LEFT JOIN master_parts mp ON hl.part_no = mp.part_no
         LEFT JOIN customers c ON hl.customer_id = c.id

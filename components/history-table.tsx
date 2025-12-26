@@ -21,6 +21,8 @@ interface HistoryLog {
   jumlah: number
   waktu_kejadian: string
   keterangan: string
+  total_awal: number
+  total_akhir: number
 }
 
 interface ApiResponse {
@@ -196,6 +198,8 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Rak</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Tipe</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Jumlah</th>
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Total Awal</th>
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Total Akhir</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Keterangan</th>
                   </tr>
                 </thead>
@@ -216,12 +220,14 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
                           </Badge>
                         </td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.jumlah}</td>
+                        <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.total_awal}</td>
+                        <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.total_akhir}</td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm text-muted-foreground">{log.keterangan}</td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={8} className="py-2 px-2 sm:py-3 sm:px-4 text-center text-xs sm:text-sm text-muted-foreground">
+                      <td colSpan={10} className="py-2 px-2 sm:py-3 sm:px-4 text-center text-xs sm:text-sm text-muted-foreground">
                         Tidak ada data history
                       </td>
                     </tr>

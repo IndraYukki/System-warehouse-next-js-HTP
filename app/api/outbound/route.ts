@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     }
 
     // Validasi jumlah
-    const jumlah = jumlahInput ? parseInt(jumlahInput) : 1
+    const jumlah = Number(jumlahInput ? parseInt(jumlahInput) : 1)
     if (isNaN(jumlah) || jumlah <= 0) {
       return NextResponse.json({ error: "Jumlah harus berupa angka positif!" }, { status: 400 })
     }
@@ -50,7 +50,14 @@ export async function POST(request: Request) {
       }, { status: 400 })
     }
 
-    // 3. Periksa apakah jumlah yang diminta bisa dipenuhi dari rak-rak yang tersedia (menggunakan FIFO)
+    // 3. Hitung total_awal SEBELUM mengurangi jumlah di inventory
+    const [totalAwalRows] = await connection.query(
+      "SELECT COALESCE(SUM(jumlah), 0) AS total FROM inventory WHERE part_no = ?",
+      [part_no]
+    );
+    const total_awal = Number((totalAwalRows as any[])[0].total);
+
+    // 4. Periksa apakah jumlah yang diminta bisa dipenuhi dari rak-rak yang tersedia (menggunakan FIFO)
     let jumlahYangHarusDikurangi = jumlah
     const itemsYgDiproses = []
     const allInventoryArray = (allInventoryRows as any[])
@@ -91,10 +98,10 @@ export async function POST(request: Request) {
       }, { status: 400 })
     }
 
-    // 4. Auto-timestamp menggunakan waktu server
+    // 5. Auto-timestamp menggunakan waktu server
     const waktuSekarang = new Date()
 
-    // 5. Update status rak jika semua barang di rak itu habis
+    // 6. Update status rak jika semua barang di rak itu habis
     for (const itemProses of itemsYgDiproses) {
       // Cek apakah masih ada barang lain di rak yang sama
       const [otherItemsInRack] = await connection.query(
@@ -103,17 +110,20 @@ export async function POST(request: Request) {
       )
 
       if ((otherItemsInRack as any[])[0].count === 0) {
-        // Jika tidak ada barang lain di rak ini, set status rak ke 'tidak_aktif'
-        await connection.query("UPDATE master_racks SET status = ? WHERE alamat_rak = ?", ["tidak_aktif", itemProses.alamat_rak])
+        // Jika tidak ada barang lain di rak ini, set status rak ke 'available'
+        await connection.query("UPDATE master_racks SET status = ? WHERE alamat_rak = ?", ["available", itemProses.alamat_rak])
       }
     }
 
-    // 6. Catat ke history_logs (buat entri untuk setiap rak yang terlibat)
+    // 7. Hitung total_akhir setelah pengurangan
+    const total_akhir = total_awal - jumlah; // jumlah adalah total yang dikeluarkan
+
+    // 8. Catat ke history_logs (buat entri untuk setiap rak yang terlibat)
     for (const itemProses of itemsYgDiproses) {
       if (itemProses.jumlah_dikurangi > 0) { // hanya catat jika benar-benar ada pengurangan
         await connection.query(
-          "INSERT INTO history_logs (part_no, alamat_rak, customer_id, tipe, jumlah, waktu_kejadian, keterangan) VALUES (?, ?, ?, ?, ?, ?, ?)",
-          [part_no, itemProses.alamat_rak, customer_id, "OUT", itemProses.jumlah_dikurangi, waktuSekarang, keterangan || "Barang keluar"],
+          "INSERT INTO history_logs (part_no, alamat_rak, customer_id, tipe, jumlah, waktu_kejadian, keterangan, total_awal, total_akhir) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          [part_no, itemProses.alamat_rak, customer_id, "OUT", itemProses.jumlah_dikurangi, waktuSekarang, keterangan || "Barang keluar", total_awal, total_akhir],
         )
       }
     }

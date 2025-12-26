@@ -9,8 +9,24 @@ export async function POST() {
       message: "Logout berhasil"
     });
 
-    // Hapus cookie 'isLoggedIn'
+    // Hapus cookie 'isLoggedIn', 'userId', dan 'userRole'
     response.cookies.set('isLoggedIn', 'false', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 0, // Expire cookie
+      path: '/',
+      sameSite: 'strict',
+    });
+
+    response.cookies.set('userId', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 0, // Expire cookie
+      path: '/',
+      sameSite: 'strict',
+    });
+
+    response.cookies.set('userRole', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 0, // Expire cookie

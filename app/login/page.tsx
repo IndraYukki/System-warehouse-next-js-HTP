@@ -31,8 +31,8 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Login berhasil, arahkan ke dashboard
-        router.push("/");
+        // Login berhasil, arahkan ke dashboard admin
+        router.push("/admin/dashboard");
         router.refresh(); // Refresh untuk memperbarui tampilan navbar
       } else {
         setError(data.error || "Login gagal");

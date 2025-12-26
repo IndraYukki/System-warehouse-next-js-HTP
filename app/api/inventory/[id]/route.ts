@@ -51,8 +51,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       )
 
       if ((otherItemsInRack as any[])[0].count === 0) {
-        // Jika tidak ada barang lain di rak ini, set status rak ke 'tidak_aktif'
-        await connection.query("UPDATE master_racks SET status = ? WHERE alamat_rak = ?", ["tidak_aktif", existingItem.alamat_rak])
+        // Jika tidak ada barang lain di rak ini, set status rak ke 'available'
+        await connection.query("UPDATE master_racks SET status = ? WHERE alamat_rak = ?", ["available", existingItem.alamat_rak])
       }
     }
 

@@ -46,7 +46,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Alamat Rak tidak ditemukan!" }, { status: 400 })
     }
 
-    // 3. Cek apakah part_no sudah ada di inventory dengan alamat_rak yang sama
+    // 3. Hitung total_awal SEBELUM mengupdate atau membuat entri baru di inventory
+    const [totalAwalRows] = await connection.query(
+      "SELECT COALESCE(SUM(jumlah), 0) AS total FROM inventory WHERE part_no = ?",
+      [part_no]
+    );
+    const total_awal = Number((totalAwalRows as any[])[0].total);
+
+    // 4. Cek apakah part_no sudah ada di inventory dengan alamat_rak yang sama
     const [existingInventoryRows] = await connection.query(
       "SELECT * FROM inventory WHERE part_no = ? AND alamat_rak = ?",
       [part_no, alamat_rak]
@@ -71,13 +78,16 @@ export async function POST(request: Request) {
       )
     }
 
-    // 4. Update status rak menjadi aktif jika sebelumnya tidak aktif
-    await connection.query("UPDATE master_racks SET status = ? WHERE alamat_rak = ?", ["aktif", alamat_rak])
+    // 5. Update status rak menjadi occupied jika sebelumnya tidak aktif
+    await connection.query("UPDATE master_racks SET status = ? WHERE alamat_rak = ?", ["occupied", alamat_rak])
 
-    // 5. Catat ke history_logs
+    // 6. Hitung total_akhir setelah penambahan barang
+    const total_akhir = total_awal + jumlah;
+
+    // 7. Catat ke history_logs
     await connection.query(
-      "INSERT INTO history_logs (part_no, alamat_rak, customer_id, tipe, jumlah, waktu_kejadian, keterangan) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [part_no, alamat_rak, customer_id, "IN", jumlah, waktuSekarang, keterangan || "Barang masuk"],
+      "INSERT INTO history_logs (part_no, alamat_rak, customer_id, tipe, jumlah, waktu_kejadian, keterangan, total_awal, total_akhir) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [part_no, alamat_rak, customer_id, "IN", jumlah, waktuSekarang, keterangan || "Barang masuk", total_awal, total_akhir],
     )
 
     await connection.commit()

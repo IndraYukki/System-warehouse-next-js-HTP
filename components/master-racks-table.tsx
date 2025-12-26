@@ -127,11 +127,15 @@ export function MasterRacksTable() {
                       <td className="py-3 px-4 text-sm">{rack.kapasitas}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-1 rounded-full text-xs ${
-                          rack.status === 'aktif'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
+                          rack.status === 'occupied'
+                            ? 'bg-green-100 text-green-800' // Gunakan occupied sebagai aktif
+                            : rack.status === 'available'
+                            ? 'bg-red-100 text-red-800' // Gunakan available sebagai tidak aktif
+                            : 'bg-yellow-100 text-yellow-800' // Untuk maintenance atau status lain
                         }`}>
-                          {rack.status === 'aktif' ? 'Aktif' : 'Tidak Aktif'}
+                          {rack.status === 'occupied' ? 'Aktif' :
+                           rack.status === 'available' ? 'Tidak Aktif' :
+                           rack.status.charAt(0).toUpperCase() + rack.status.slice(1)} {/* Tampilkan status aslinya jika bukan occupied/available */}
                         </span>
                       </td>
                       <td className="py-3 px-4">

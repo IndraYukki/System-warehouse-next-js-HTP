@@ -55,8 +55,25 @@ export async function POST(request: Request) {
       }
     });
 
-    // Set cookie 'isLoggedIn' ke 'true'
+    // Set cookie 'isLoggedIn' ke 'true' dan tambahkan userId
     response.cookies.set('isLoggedIn', 'true', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24, // 24 jam
+      path: '/',
+      sameSite: 'strict',
+    });
+
+    response.cookies.set('userId', user.id.toString(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24, // 24 jam
+      path: '/',
+      sameSite: 'strict',
+    });
+
+    // Set cookie untuk menyimpan role pengguna
+    response.cookies.set('userRole', user.role, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24, // 24 jam

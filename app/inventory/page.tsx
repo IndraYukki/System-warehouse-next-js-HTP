@@ -15,7 +15,7 @@ export default function InventoryPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 sm:py-10 px-4">
+    <div className="container mx-auto py-6 sm:py-10 px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16">
       <Card>
         <CardHeader className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

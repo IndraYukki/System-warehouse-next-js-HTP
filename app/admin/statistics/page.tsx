@@ -6,7 +6,7 @@ export default function AdminStatisticsPage() {
         <p className="text-muted-foreground">Informasi statistik sistem gudang</p>
       </div>
       <div className="bg-white p-8 rounded-lg shadow-sm border">
-        <p className="text-center text-lg text-muted-foreground">Halaman statistik akan segera hadir</p>
+        <p className="text-center text-lg text-muted-foreground">Sabar Masih Tahap Pengembangan Ges!!</p>
       </div>
     </div>
   )

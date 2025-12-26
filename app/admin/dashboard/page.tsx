@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Package, Users, PackageOpen, Warehouse } from "lucide-react"
+import { Package, Users, PackageOpen, Warehouse, Eye } from "lucide-react"
+import { useAuth } from "@/components/hooks/useAuth"
 
 interface DashboardStats {
   totalProducts: number
@@ -17,6 +18,7 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { user } = useAuth()
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -54,11 +56,19 @@ export default function AdminDashboardPage() {
     )
   }
 
+  // Filter tampilan berdasarkan role
+  const canViewFullStats = user?.role === 'admin' || user?.role === 'manager';
+  const canViewLimitedStats = user?.role === 'user';
+
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Dashboard Admin</h1>
-        <p className="text-muted-foreground">Statistik dan informasi sistem gudang</p>
+        <h1 className="text-3xl font-bold">Dashboard {user?.role === 'user' ? 'Utama' : 'Admin'}</h1>
+        <p className="text-muted-foreground">
+          {user?.role === 'user'
+            ? 'Informasi utama sistem gudang'
+            : 'Statistik dan informasi sistem gudang'}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -84,74 +94,103 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Customer</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalCustomers || 0}</div>
-            <p className="text-xs text-muted-foreground">Jumlah pelanggan terdaftar</p>
-          </CardContent>
-        </Card>
+        {canViewFullStats && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Customer</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats?.totalCustomers || 0}</div>
+              <p className="text-xs text-muted-foreground">Jumlah pelanggan terdaftar</p>
+            </CardContent>
+          </Card>
+        )}
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Rak Gudang</CardTitle>
-            <Warehouse className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalRacks || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats?.filledRacks} terisi / {stats?.emptyRacks} kosong
-            </p>
-          </CardContent>
-        </Card>
+        {canViewFullStats && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Rak Gudang</CardTitle>
+              <Warehouse className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats?.totalRacks || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats?.filledRacks} terisi / {stats?.emptyRacks} kosong
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {canViewLimitedStats && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Status Rak</CardTitle>
+              <Eye className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                <a href="/admin/rack-status" className="text-blue-600 hover:underline">
+                  Lihat
+                </a>
+              </div>
+              <p className="text-xs text-muted-foreground">Status rak gudang</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Statistik Rak</CardTitle>
-            <CardDescription>Detail penggunaan rak gudang</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <span>Rak Terisi:</span>
-                <span className="font-medium">{stats?.filledRacks || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Rak Kosong:</span>
-                <span className="font-medium">{stats?.emptyRacks || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Total Rak:</span>
-                <span className="font-medium">{stats?.totalRacks || 0}</span>
-              </div>
-              {stats && stats.totalRacks && (
-                <div className="pt-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div 
-                      className="bg-blue-600 h-2.5 rounded-full" 
-                      style={{ width: `${((stats.filledRacks / stats.totalRacks) * 100).toFixed(2)}%` }}
-                    ></div>
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>0%</span>
-                    <span>{((stats.filledRacks / stats.totalRacks) * 100).toFixed(2)}% terisi</span>
-                    <span>100%</span>
-                  </div>
+        {canViewFullStats && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Statistik Rak</CardTitle>
+              <CardDescription>Detail penggunaan rak gudang</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span>Rak Terisi:</span>
+                  <span className="font-medium">{stats?.filledRacks || 0}</span>
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                <div className="flex justify-between">
+                  <span>Rak Kosong:</span>
+                  <span className="font-medium">{stats?.emptyRacks || 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Total Rak:</span>
+                  <span className="font-medium">{stats?.totalRacks || 0}</span>
+                </div>
+                {stats && stats.totalRacks && (
+                  <div className="pt-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-blue-600 h-2.5 rounded-full"
+                        style={{ width: `${((stats.filledRacks / stats.totalRacks) * 100).toFixed(2)}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      <span>0%</span>
+                      <span>{((stats.filledRacks / stats.totalRacks) * 100).toFixed(2)}% terisi</span>
+                      <span>100%</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>
-            <CardTitle>Ringkasan Sistem</CardTitle>
-            <CardDescription>Informasi keseluruhan sistem</CardDescription>
+            <CardTitle>
+              {canViewFullStats ? 'Ringkasan Sistem' : 'Informasi Produk'}
+            </CardTitle>
+            <CardDescription>
+              {canViewFullStats
+                ? 'Informasi keseluruhan sistem'
+                : 'Informasi produk gudang'}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -163,16 +202,20 @@ export default function AdminDashboardPage() {
                 <span>Total QTY Barang:</span>
                 <span className="font-medium">{stats?.totalQty || 0}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Total Customer:</span>
-                <span className="font-medium">{stats?.totalCustomers || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Rata-rata Barang per Produk:</span>
-                <span className="font-medium">
-                  {stats?.totalProducts ? (stats.totalQty / stats.totalProducts).toFixed(2) : 0}
-                </span>
-              </div>
+              {canViewFullStats && (
+                <>
+                  <div className="flex justify-between">
+                    <span>Total Customer:</span>
+                    <span className="font-medium">{stats?.totalCustomers || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Rata-rata Barang per Produk:</span>
+                    <span className="font-medium">
+                      {stats?.totalProducts ? (stats.totalQty / stats.totalProducts).toFixed(2) : 0}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
