@@ -53,7 +53,12 @@ export function useAuth() {
   };
 
   // Gunakan session timeout hanya di halaman admin
-  useSessionTimeout(5, logout, authState.isLoggedIn && isAdminPage());
+  const handleTimeout = async () => {
+    await logout(); // Pastikan logout dipanggil dulu
+    window.location.href = '/'; // Redirect ke dashboard utama
+  };
+
+  useSessionTimeout(2, handleTimeout, authState.isLoggedIn); // Ubah menjadi 2 menit dan aktif di semua halaman yang login
 
   useEffect(() => {
     // Cek status login dari cookie atau localStorage

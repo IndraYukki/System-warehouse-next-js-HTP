@@ -13,6 +13,19 @@ export function AdminNavbar() {
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  const getGreeting = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour >= 4 && currentHour < 11) {
+      return "Pagi";
+    } else if (currentHour >= 11 && currentHour < 15) {
+      return "Siang";
+    } else if (currentHour >= 15 && currentHour < 18) {
+      return "Sore";
+    } else {
+      return "Malam";
+    }
+  };
+
   const handleLogout = async () => {
     await logout()
     setShowDropdown(false)
@@ -78,10 +91,17 @@ export function AdminNavbar() {
   return (
     <header className="border-b bg-muted/40">
       <div className="container flex h-16 items-center justify-between px-4">
-        <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold">
-          <span className="text-xl">📋</span>
-          <span>Admin Dashboard</span>
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold">
+            <span className="text-xl">📋</span>
+            <span>Admin Dashboard</span>
+          </Link>
+          {!loading && user && (
+            <p className="text-sm text-muted-foreground">
+              Selamat {getGreeting()} {user.nama_panggilan}, Selamat Datang
+            </p>
+          )}
+        </div>
         <nav className="flex items-center gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;

@@ -11,10 +11,10 @@ export default function InboundPage() {
   return (
     <div className="container mx-auto py-6 sm:py-10 px-4">
       <div className="max-w-2xl mx-auto w-full">
-        <InboundForm onSuccess={handleSuccess} />
-        <div className="mt-8">
+        <div className="mb-8">
           <ScrollingText text="PASTIKAN QTY YANG DI MASUKAN SESUAI!! " />
         </div>
+        <InboundForm onSuccess={handleSuccess} />
       </div>
     </div>
   )
