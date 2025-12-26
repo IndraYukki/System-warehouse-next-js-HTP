@@ -191,7 +191,6 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Waktu</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Customer</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Part No</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Nama Part</th>
@@ -201,15 +200,14 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Total Awal</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Total Akhir</th>
                     <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Keterangan</th>
+                    <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-xs sm:text-sm">Waktu</th>
                   </tr>
                 </thead>
                 <tbody>
                   {Array.isArray(history) && history.length > 0 ? (
                     history.map((log) => (
                       <tr key={log.id} className="border-b hover:bg-muted/50">
-                        <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">
-                          {format(new Date(log.waktu_kejadian), "dd MMM yyyy HH:mm", { locale: id })}
-                        </td>
+                        
                         <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.nama_customer || '-'}</td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4 font-mono text-xs sm:text-sm">{log.part_no}</td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.nama_part}</td>
@@ -223,6 +221,9 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
                         <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.total_awal}</td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.total_akhir}</td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm text-muted-foreground">{log.keterangan}</td>
+                        <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">
+                          {format(new Date(log.waktu_kejadian), "dd MMM yyyy HH:mm", { locale: id })}
+                        </td>
                       </tr>
                     ))
                   ) : (
