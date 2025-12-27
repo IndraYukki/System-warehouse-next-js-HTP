@@ -41,6 +41,8 @@ export default function AdminEditInventoryPage() {
   const [localSearchTerm, setLocalSearchTerm] = useState("")
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null)
   const [newQty, setNewQty] = useState<number>(0)
+  const [newRack, setNewRack] = useState<string>("")
+  const [racks, setRacks] = useState<{ id: number; alamat_rak: string; zona: string }[]>([])
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
@@ -95,13 +97,36 @@ export default function AdminEditInventoryPage() {
     setCurrentPage(0) // Reset ke halaman pertama saat mengganti jumlah item per halaman
   }
 
+  useEffect(() => {
+    const fetchRacks = async () => {
+      try {
+        const response = await fetch('/api/master/racks')
+        if (response.ok) {
+          const rackData = await response.json()
+          setRacks(Array.isArray(rackData) ? rackData : [])
+        }
+      } catch (error) {
+        console.error("Error fetching racks:", error)
+      }
+    }
+
+    fetchRacks()
+  }, [])
+
   const handleEditQty = (item: InventoryItem) => {
     setEditingItem(item)
     setNewQty(item.jumlah)
+    setNewRack(item.alamat_rak)
   }
 
   const handleSaveQty = async () => {
     if (!editingItem) return
+
+    // Validasi bahwa alamat rak baru ada di database master_racks
+    if (newRack && !racks.some(rack => rack.alamat_rak === newRack)) {
+      setMessage({ type: "error", text: `Alamat rak "${newRack}" tidak ditemukan di database master racks` })
+      return
+    }
 
     try {
       const response = await fetch(`/api/inventory/${editingItem.id}`, {
@@ -111,6 +136,7 @@ export default function AdminEditInventoryPage() {
         },
         body: JSON.stringify({
           jumlah: newQty,
+          alamat_rak: newRack,
         }),
       })
 
@@ -347,13 +373,14 @@ export default function AdminEditInventoryPage() {
           </CardContent>
         </Card>
 
-        {/* Dialog untuk edit QTY */}
+        {/* Dialog untuk edit QTY dan Rak */}
         <Dialog open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Edit Jumlah Barang</DialogTitle>
+              <DialogTitle>Edit Jumlah Barang dan Alamat Rak</DialogTitle>
               <DialogDescription>
-                Perbarui jumlah barang untuk part {editingItem?.part_no} di rak {editingItem?.alamat_rak}
+                Perbarui jumlah barang dan alamat rak untuk part {editingItem?.part_no}.
+                Gunakan alamat rak yang terdaftar di sistem.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -366,8 +393,25 @@ export default function AdminEditInventoryPage() {
                 <span className="col-span-3">{editingItem?.nama_part}</span>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <span className="text-right">Alamat Rak:</span>
-                <span className="col-span-3 font-mono">{editingItem?.alamat_rak}</span>
+                <label htmlFor="new-rack" className="text-right">Alamat Rak Baru:</label>
+                <div className="col-span-2">
+                  <Input
+                    id="new-rack"
+                    type="text"
+                    value={newRack}
+                    onChange={(e) => setNewRack(e.target.value.toUpperCase())}
+                    className="w-full"
+                    placeholder="Contoh: RAK-A-01"
+                    list="racks-list"
+                  />
+                  <datalist id="racks-list">
+                    {racks.map((rack) => (
+                      <option key={rack.id} value={rack.alamat_rak}>
+                        {rack.alamat_rak} ({rack.zona})
+                      </option>
+                    ))}
+                  </datalist>
+                </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <label htmlFor="new-qty" className="text-right">Jumlah Baru:</label>
@@ -379,6 +423,10 @@ export default function AdminEditInventoryPage() {
                   className="col-span-2"
                   min="0"
                 />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="text-right">Alamat Rak Lama:</span>
+                <span className="col-span-3 font-mono">{editingItem?.alamat_rak}</span>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <span className="text-right">Jumlah Lama:</span>
