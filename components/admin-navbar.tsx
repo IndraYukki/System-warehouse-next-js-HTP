@@ -11,6 +11,7 @@ export function AdminNavbar() {
   const pathname = usePathname()
   const { user, logout, loading } = useAuth()
   const [showDropdown, setShowDropdown] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const getGreeting = () => {
@@ -32,6 +33,20 @@ export function AdminNavbar() {
     // Arahkan ke halaman login setelah logout
     window.location.href = '/'
   }
+
+  // Fungsi untuk menangani scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setScrolled(true)
+      } else {
+        setScrolled(false)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Fungsi untuk menutup dropdown saat klik di luar area dropdown
   useEffect(() => {
@@ -89,7 +104,7 @@ export function AdminNavbar() {
   const navItems = getAdminNavItems();
 
   return (
-    <header className="border-b bg-muted/40">
+    <header className={`border-b bg-muted/40 sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-muted/90 backdrop-blur-sm' : 'bg-muted/40'}`}>
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-4">
           <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold">

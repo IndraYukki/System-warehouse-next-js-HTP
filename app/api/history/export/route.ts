@@ -5,8 +5,30 @@ export async function GET(request: Request) {
   const pool = getPool();
   const { searchParams } = new URL(request.url);
   const part_no = searchParams.get("part_no");
+  const startDate = searchParams.get("start_date");
+  const endDate = searchParams.get("end_date");
 
   try {
+    // Validasi format tanggal
+    let validatedStartDate = null;
+    let validatedEndDate = null;
+
+    if (startDate) {
+      const date = new Date(startDate);
+      if (isNaN(date.getTime())) {
+        return NextResponse.json({ error: "Format tanggal mulai tidak valid. Gunakan format YYYY-MM-DD." }, { status: 400 });
+      }
+      validatedStartDate = date.toISOString().split('T')[0];
+    }
+
+    if (endDate) {
+      const date = new Date(endDate);
+      if (isNaN(date.getTime())) {
+        return NextResponse.json({ error: "Format tanggal akhir tidak valid. Gunakan format YYYY-MM-DD." }, { status: 400 });
+      }
+      validatedEndDate = date.toISOString().split('T')[0];
+    }
+
     // Query untuk mendapatkan data history lengkap
     let query = `
       SELECT
@@ -27,14 +49,31 @@ export async function GET(request: Request) {
     `;
 
     const params: any[] = [];
+    let whereClauseAdded = false;
 
     // Tambahkan filter jika part_no disediakan
     if (part_no) {
       query += " WHERE hl.part_no LIKE ?";
       params.push(`%${part_no}%`);
+      whereClauseAdded = true;
+    }
+
+    // Tambahkan filter tanggal jika disediakan
+    if (validatedStartDate && validatedEndDate) {
+      query += whereClauseAdded ? " AND hl.waktu_kejadian BETWEEN ? AND ?" : " WHERE hl.waktu_kejadian BETWEEN ? AND ?";
+      params.push(`${validatedStartDate} 00:00:00`, `${validatedEndDate} 23:59:59`);
+      whereClauseAdded = true;
+    } else if (validatedStartDate) {
+      query += whereClauseAdded ? " AND hl.waktu_kejadian >= ?" : " WHERE hl.waktu_kejadian >= ?";
+      params.push(`${validatedStartDate} 00:00:00`);
+      whereClauseAdded = true;
+    } else if (validatedEndDate) {
+      query += whereClauseAdded ? " AND hl.waktu_kejadian <= ?" : " WHERE hl.waktu_kejadian <= ?";
+      params.push(`${validatedEndDate} 23:59:59`);
+      whereClauseAdded = true;
     } else {
-      // Jika tidak ada pencarian part_no, tambahkan filter 1 minggu terakhir
-      query += " WHERE hl.waktu_kejadian >= DATE_SUB(NOW(), INTERVAL 1 WEEK)";
+      // Jika tidak ada filter tanggal, gunakan default 1 minggu terakhir
+      query += whereClauseAdded ? " AND hl.waktu_kejadian >= DATE_SUB(NOW(), INTERVAL 1 WEEK)" : " WHERE hl.waktu_kejadian >= DATE_SUB(NOW(), INTERVAL 1 WEEK)";
     }
 
     query += " ORDER BY hl.waktu_kejadian DESC";
@@ -51,7 +90,7 @@ export async function GET(request: Request) {
       } catch (e) {
         console.warn("Invalid date format:", item.waktu_kejadian);
       }
-      
+
       return {
         "Waktu": waktuKejadian,
         "Customer": item.nama_customer || "Tidak Ada Customer",
@@ -70,7 +109,7 @@ export async function GET(request: Request) {
     // Membuat header CSV
     const headers = Object.keys(csvData[0] || {});
     const csvHeader = headers.join(',');
-    
+
     // Membuat baris data CSV
     const csvRows = csvData.map((row: any) => {
       return headers.map(header => {
@@ -92,6 +131,14 @@ export async function GET(request: Request) {
     let filename = "history_transaksi_export.csv";
     if (part_no) {
       filename = `history_transaksi_export_${part_no.replace(/[\\/?*[\]:]/g, '_')}.csv`;
+    } else if (validatedStartDate && validatedEndDate) {
+      filename = `history_transaksi_export_${validatedStartDate}_to_${validatedEndDate}.csv`;
+    } else if (validatedStartDate) {
+      filename = `history_transaksi_export_${validatedStartDate}.csv`;
+    } else if (validatedEndDate) {
+      filename = `history_transaksi_export_${validatedEndDate}.csv`;
+    } else {
+      filename = "history_transaksi_export_today.csv";
     }
 
     // Return file CSV

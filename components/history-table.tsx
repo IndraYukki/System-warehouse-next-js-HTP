@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { History, Search, ChevronLeft, ChevronRight, Download } from "lucide-react"
+import { History, Search, ChevronLeft, ChevronRight, Download, Calendar } from "lucide-react"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -44,6 +44,8 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [totalItems, setTotalItems] = useState(0)
   const [localSearchTerm, setLocalSearchTerm] = useState("")
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
 
   // Sinkronkan searchTerm eksternal dengan state lokal
   useEffect(() => {
@@ -59,6 +61,12 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
       let url = `/api/history?limit=${itemsPerPage}&offset=${offset}`
       if (localSearchTerm) {
         url += `&search=${encodeURIComponent(localSearchTerm)}`
+      }
+      if (startDate) {
+        url += `&start_date=${encodeURIComponent(startDate)}`
+      }
+      if (endDate) {
+        url += `&end_date=${encodeURIComponent(endDate)}`
       }
 
       const response = await fetch(url)
@@ -79,7 +87,7 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
 
   useEffect(() => {
     fetchHistory()
-  }, [refreshTrigger, currentPage, itemsPerPage, localSearchTerm])
+  }, [refreshTrigger, currentPage, itemsPerPage, localSearchTerm, startDate, endDate])
 
   const totalPages = Math.ceil(totalItems / itemsPerPage)
 
@@ -102,8 +110,21 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
   }
 
   const handleExport = () => {
-    const url = "/api/history/export";
+    let url = "/api/history/export";
+    if (startDate) {
+      url += `?start_date=${encodeURIComponent(startDate)}`;
+    }
+    if (endDate) {
+      url += startDate ? `&end_date=${encodeURIComponent(endDate)}` : `?end_date=${encodeURIComponent(endDate)}`;
+    }
+    if (localSearchTerm) {
+      url += startDate || endDate ? `&part_no=${encodeURIComponent(localSearchTerm)}` : `?part_no=${encodeURIComponent(localSearchTerm)}`;
+    }
     window.open(url, "_blank");
+  };
+
+  const handleDateFilter = () => {
+    setCurrentPage(0); // Reset ke halaman pertama saat filter tanggal diubah
   };
 
   return (
@@ -130,7 +151,7 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
                     onClick={handleExport}
                     className="w-full"
                   >
-                    Export Semua Data
+                    Export Data Terfilter
                   </Button>
                 </div>
               </DialogContent>
@@ -142,7 +163,7 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
               <History className="h-5 w-5" />
               Riwayat Transaksi
             </CardTitle>
-            <CardDescription>History semua aktivitas masuk dan keluar barang (1 minggu terakhir)</CardDescription>
+            <CardDescription>History semua aktivitas masuk dan keluar barang</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -159,6 +180,48 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
               }}
               className="pl-9"
             />
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <Input
+                type="date"
+                value={startDate || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setStartDate(value);
+                  // Jika tanggal mulai lebih besar dari tanggal akhir, reset tanggal akhir
+                  if (endDate && value && new Date(value) > new Date(endDate)) {
+                    setEndDate(null);
+                  }
+                }}
+                className="w-[140px]"
+              />
+              <span className="text-sm text-muted-foreground">s.d</span>
+              <Input
+                type="date"
+                value={endDate || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Hanya izinkan tanggal akhir yang sama atau setelah tanggal mulai
+                  if (!startDate || !value || new Date(value) >= new Date(startDate)) {
+                    setEndDate(value);
+                  }
+                }}
+                min={startDate || undefined}
+                className="w-[140px]"
+              />
+            </div>
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                setStartDate(null);
+                setEndDate(null);
+              }}
+            >
+              Reset
+            </Button>
           </div>
 
           <div className="flex items-center gap-2">
@@ -184,7 +247,11 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading...</div>
         ) : Array.isArray(history) && history.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">Belum ada riwayat transaksi dalam 1 minggu terakhir</div>
+          <div className="text-center py-8 text-muted-foreground">
+            {startDate || endDate
+              ? "Belum ada riwayat transaksi dalam rentang tanggal yang dipilih"
+              : "Belum ada riwayat transaksi"}
+          </div>
         ) : (
           <>
             <div className="overflow-x-auto mb-4">
@@ -207,7 +274,7 @@ export function HistoryTable({ refreshTrigger, searchTerm: externalSearchTerm }:
                   {Array.isArray(history) && history.length > 0 ? (
                     history.map((log) => (
                       <tr key={log.id} className="border-b hover:bg-muted/50">
-                        
+
                         <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.nama_customer || '-'}</td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4 font-mono text-xs sm:text-sm">{log.part_no}</td>
                         <td className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm">{log.nama_part}</td>

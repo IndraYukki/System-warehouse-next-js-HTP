@@ -11,6 +11,7 @@ export function Navbar() {
   const pathname = usePathname()
   const { isLoggedIn, loading, logout, user } = useAuth()
   const [showDropdown, setShowDropdown] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const handleLogout = async () => {
@@ -19,6 +20,20 @@ export function Navbar() {
     // Arahkan ke halaman login setelah logout
     window.location.href = '/login'
   }
+
+  // Fungsi untuk menangani scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setScrolled(true)
+      } else {
+        setScrolled(false)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Fungsi untuk menutup dropdown saat klik di luar area dropdown
   useEffect(() => {
@@ -56,7 +71,7 @@ export function Navbar() {
   const navItems = getNavItems();
 
   return (
-    <header className="border-b">
+    <header className={`border-b sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-background/90 backdrop-blur-sm' : 'bg-background'}`}>
       <div className="container flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 font-bold">
           <span className="text-xl">🏠</span>
