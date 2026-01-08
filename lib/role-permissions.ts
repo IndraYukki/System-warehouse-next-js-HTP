@@ -17,7 +17,7 @@ export const ROLE_PERMISSIONS = {
     // Akses ke halaman lainnya
     canAccessOtherAdminPages: true
   },
-  
+
   manager: {
     // Akses ke halaman utama
     canAccessPublicPages: true,
@@ -34,7 +34,7 @@ export const ROLE_PERMISSIONS = {
     // Akses ke halaman lainnya
     canAccessOtherAdminPages: true
   },
-  
+
   user: {
     // Akses ke halaman utama
     canAccessPublicPages: true,

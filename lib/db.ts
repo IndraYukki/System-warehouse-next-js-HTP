@@ -10,7 +10,7 @@ export function getPool() {
       password: process.env.DB_PASSWORD || "",
       database: process.env.DB_NAME || "warehouse_db",
       waitForConnections: true,
-      connectionLimit: 10,
+      connectionLimit: 5,
       queueLimit: 0,
     })
   }
