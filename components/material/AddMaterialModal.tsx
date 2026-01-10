@@ -52,6 +52,18 @@ export default function AddMaterialModal({ isOpen, onClose, onRefresh }: any) {
             />
           </div>
 
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Alamat / Lokasi Penyimpanan</label>
+              <input 
+                type="text" 
+                placeholder="Ketik lokasi (contoh: Rak A-01)" 
+                className="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-emerald-500 outline-none transition"
+                value={form.location}
+                onChange={(e) => setForm({ ...form, location: e.target.value })}
+                // Tidak wajib diisi (optional) agar fleksibel
+              />
+            </div>
+
           <div className="flex justify-end gap-2 mt-6">
             <button type="button" onClick={onClose} className="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg">
               Batal

@@ -1,23 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-// Pastikan path import ini benar sesuai tempat kamu membuat file modalnya
-import AddMaterialModal from '@/components/material/AddMaterialModal'; 
+import AddMaterialModal from '@/components/material/AddMaterialModal';
 
 export default function MaterialInventory() {
-  // 1. SEMUA HOOKS (useState) HARUS DI SINI (DI DALAM FUNGSI)
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false); // <--- PINDAH KE SINI
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchMaterials = async () => {
     try {
       const res = await fetch('/api/material');
+      if (!res.ok) throw new Error(`Error: ${res.status}`);
       const data = await res.json();
       setMaterials(data);
-      setLoading(false);
     } catch (err) {
       console.error("Gagal load material:", err);
+    } finally {
       setLoading(false);
     }
   };
@@ -26,44 +25,55 @@ export default function MaterialInventory() {
     fetchMaterials();
   }, []);
 
-  if (loading) return <p className="p-10">Memuat data material...</p>;
+  if (loading) return <div className="p-10 text-center italic text-gray-500">Memuat data inventory...</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Inventory Biji Plastik</h1>
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-end border-b pb-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800 uppercase">Material Inventory</h1>
+          <p className="text-sm text-gray-500">Stok biji plastik dan lokasi penyimpanan</p>
+        </div>
         <button 
-          onClick={() => setIsModalOpen(true)} // Membuka Modal
-          className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700"
+          onClick={() => setIsModalOpen(true)}
+          className="bg-emerald-600 text-white px-5 py-2 rounded-xl font-bold hover:bg-emerald-700 transition"
         >
           + Tambah Material
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50 text-gray-600 uppercase text-sm">
+      <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+        <table className="w-full text-left border-collapse">
+          <thead className="bg-gray-50 text-gray-600 text-[11px] font-black uppercase">
             <tr>
-              <th className="p-4">Nama Material</th>
-              <th className="p-4">Kategori</th>
-              <th className="p-4 text-center">Part (gr)</th>
-              <th className="p-4 text-center">Runner (gr)</th>
-              <th className="p-4 text-center">Cavity</th>
-              <th className="p-4 text-right">Stok (Kg)</th>
+              <th className="p-4 border-r">Nama Material</th>
+              <th className="p-4 border-r">Kategori</th>
+              <th className="p-4 border-r text-center">Lokasi</th>
+              <th className="p-4 border-r text-right bg-blue-50/30">Stok (Gram)</th>
+              <th className="p-4 text-right bg-emerald-50/30">Stok (Kg)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {materials.length === 0 ? (
-              <tr><td colSpan={6} className="p-4 text-center text-gray-500">Belum ada data material.</td></tr>
+              <tr>
+                <td colSpan={5} className="p-10 text-center text-gray-400">Belum ada data material.</td>
+              </tr>
             ) : (
               materials.map((m: any) => (
-                <tr key={m.id} className="hover:bg-emerald-50/30 transition-colors">
-                  <td className="p-4 font-medium text-gray-900">{m.material_name}</td>
-                  <td className="p-4 text-gray-600">{m.category_name}</td>
-                  <td className="p-4 text-center">{m.weight_part}</td>
-                  <td className="p-4 text-center">{m.weight_runner}</td>
-                  <td className="p-4 text-center">{m.cavity}</td>
-                  <td className="p-4 text-right font-bold text-emerald-600">{m.stock_kg} Kg</td>
+                <tr key={m.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="p-4 border-r font-bold text-gray-800">{m.material_name}</td>
+                  <td className="p-4 border-r uppercase text-xs text-gray-500">{m.category_name}</td>
+                  <td className="p-4 border-r text-center">
+                    <span className="px-3 py-1 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-[10px] font-bold">
+                      {m.location || '-'}
+                    </span>
+                  </td>
+                  <td className="p-4 border-r text-right font-mono text-blue-600">
+                    {(Number(m.stock_kg) * 1000).toLocaleString('id-ID')} g
+                  </td>
+                  <td className="p-4 text-right font-black text-emerald-600">
+                    {Number(m.stock_kg).toFixed(3)} Kg
+                  </td>
                 </tr>
               ))
             )}
@@ -71,7 +81,6 @@ export default function MaterialInventory() {
         </table>
       </div>
 
-      {/* 2. MODAL DITARUH DI BAGIAN BAWAH SEBELUM PENUTUP DIV UTAMA */}
       <AddMaterialModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 

@@ -7,7 +7,8 @@ export default function MaterialInbound() {
   const [form, setForm] = useState({
     material_id: "",
     quantity: 0,
-    description: ""
+    description: "",
+    po_number: ""
   });
 
   useEffect(() => {
@@ -83,7 +84,18 @@ export default function MaterialInbound() {
               </div>
             </div>
           </div>
-
+            
+                        <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Nomor PO / Surat Jalan</label>
+              <input 
+                type="text" 
+                placeholder="Contoh: PO-2024-0001"
+                className="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-emerald-500 outline-none"
+                value={form.po_number}
+                onChange={e => setForm({...form, po_number: e.target.value})}
+                required
+              />
+            </div>
           {/* Keterangan */}
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Keterangan / Supplier / No. PO</label>
