@@ -1,28 +1,24 @@
 import { NextResponse } from 'next/server';
-import { getPool } from '../../../lib/db';
-import { testConnection } from '../../../lib/db-test';
+import { getPool } from '@/lib/db';
 
-export async function GET(request: Request) {
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
   try {
-    const isConnected = await testConnection();
-    
-    if (isConnected) {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Koneksi database berhasil' 
-      });
-    } else {
-      return NextResponse.json({ 
-        success: false, 
-        message: 'Koneksi database gagal' 
-      }, { status: 500 });
-    }
-  } catch (error) {
-    console.error('Error saat menguji koneksi database:', error);
-    return NextResponse.json({ 
-      success: false, 
-      message: 'Terjadi kesalahan saat menguji koneksi database',
-      error: (error as Error).message
+    const pool = getPool();
+    // Query paling simple untuk test koneksi
+    const [rows] = await pool.query('SELECT 1 + 1 AS result');
+
+    return NextResponse.json({
+      success: true,
+      message: 'Koneksi database berhasil!',
+      data: rows
+    });
+  } catch (error: any) {
+    return NextResponse.json({
+      success: false,
+      message: 'Koneksi database gagal',
+      error: error.message
     }, { status: 500 });
   }
 }
