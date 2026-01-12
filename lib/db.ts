@@ -1,10 +1,10 @@
 import mysql from "mysql2/promise"
 
-let pool: mysql.Pool | null = null
+let _pool: mysql.Pool | null = null
 
 export function getPool() {
-  if (!pool) {
-    pool = mysql.createPool({
+  if (!_pool) {
+    _pool = mysql.createPool({
       host: process.env.DB_HOST || "localhost",
       user: process.env.DB_USER || "root",
       password: process.env.DB_PASSWORD || "",
@@ -14,5 +14,8 @@ export function getPool() {
       queueLimit: 0,
     })
   }
-  return pool
+  return _pool
 }
+
+// 🔑 export alias bernama `pool`
+export const pool = getPool()

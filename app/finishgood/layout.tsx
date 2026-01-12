@@ -1,4 +1,3 @@
-import "../globals.css";
 import { NavbarSwitcher } from "@/components/navbar-switcher";
 
 export default function RootLayout({

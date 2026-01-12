@@ -1,5 +1,8 @@
-import "@/app/globals.css";
+import "./globals.css";
+import { Inter } from "next/font/google"; // Tambahkan ini
 import { NavbarSwitcher } from "@/components/navbar-switcher";
+
+const inter = Inter({ subsets: ["latin"] }); // Inisialisasi font
 
 export default function RootLayout({
   children,
@@ -9,9 +12,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Next.js otomatis mengurus charset dan viewport, tapi tidak apa-apa jika ada */}
       </head>
-      <body>
+      <body className={inter.className}> {/* Gunakan font class di sini */}
         <div className="min-h-screen bg-background">
           <NavbarSwitcher />
           <main>
