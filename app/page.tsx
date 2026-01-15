@@ -1,74 +1,63 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { PackagePlus, PackageMinus, Package, History } from "lucide-react"
+import { Package, Layers } from "lucide-react"
 
 export default function HomePage() {
   return (
-    <div className="container mx-auto py-10">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold mb-2">Sistem Gudang FG HTP</h1>
-          <p className="text-muted-foreground">Sistem manajemen gudang untuk barang finished goods</p>
+    <div className="container mx-auto py-16">
+      {/* HEADER */}
+      <div className="text-center max-w-3xl mx-auto mb-14">
+        <h1 className="text-4xl font-bold tracking-tight mb-4">
+          Sistem Gudang HTP
+        </h1>
+        <p className="text-muted-foreground text-lg">
+          Sistem terintegrasi untuk pengelolaan gudang Finished Goods dan Raw Material
+          secara efisien, terstruktur, dan terdokumentasi.
+        </p>
+      </div>
+
+      {/* DEPARTEMENT INFO */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        {/* FINISH GOOD */}
+        <div className="rounded-xl border bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <Package className="h-7 w-7 text-blue-600" />
+            <h2 className="text-xl font-semibold">Finished Goods Area</h2>
+          </div>
+
+          <p className="text-sm text-muted-foreground mb-4">
+            Area pengelolaan barang jadi yang siap disimpan dan dikirim ke customer.
+          </p>
+
+          <ul className="space-y-2 text-sm">
+            <li>• Inbound barang jadi</li>
+            <li>• Outbound / pengiriman</li>
+            <li>• Monitoring stok & rak</li>
+            <li>• Riwayat transaksi</li>
+          </ul>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader className="text-center">
-              <PackagePlus className="h-10 w-10 mx-auto text-blue-500 mb-3" />
-              <CardTitle>Inbound</CardTitle>
-              <CardDescription>Pemasukan barang ke gudang</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full">
-                <Link href="/inbound">Tambah Barang Masuk</Link>
-              </Button>
-            </CardContent>
-          </Card>
+        {/* MATERIAL */}
+        <div className="rounded-xl border bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <Layers className="h-7 w-7 text-green-600" />
+            <h2 className="text-xl font-semibold">Material Area</h2>
+          </div>
 
-          <Card>
-            <CardHeader className="text-center">
-              <PackageMinus className="h-10 w-10 mx-auto text-red-500 mb-3" />
-              <CardTitle>Outbound</CardTitle>
-              <CardDescription>Pengeluaran barang dari gudang</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full">
-                <Link href="/outbound">Keluarkan Barang</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <p className="text-sm text-muted-foreground mb-4">
+            Area pengelolaan material produksi dan proses manufaktur.
+          </p>
 
-          <Card>
-            <CardHeader className="text-center">
-              <Package className="h-10 w-10 mx-auto text-green-500 mb-3" />
-              <CardTitle>Inventory</CardTitle>
-              <CardDescription>Daftar barang yang tersedia</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/inventory">Lihat Inventory</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="text-center">
-              <History className="h-10 w-10 mx-auto text-purple-500 mb-3" />
-              <CardTitle>History</CardTitle>
-              <CardDescription>Riwayat transaksi barang</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/history">Lihat Riwayat</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <ul className="space-y-2 text-sm">
+            <li>• Inbound material</li>
+            <li>• Bill of Material (BOM)</li>
+            <li>• Proses produksi</li>
+            <li>• Transaksi material</li>
+          </ul>
         </div>
+      </div>
 
-        <div className="mt-10 text-center text-sm text-muted-foreground">
-          <p>Sistem manajemen gudang untuk memudahkan pengelolaan barang finished goods</p>
-        </div>
+      {/* FOOT NOTE */}
+      <div className="text-center mt-14 text-sm text-muted-foreground">
+        Gunakan menu navigasi di atas untuk mengakses masing-masing area kerja.
       </div>
     </div>
   )

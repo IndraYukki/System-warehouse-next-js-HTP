@@ -26,7 +26,6 @@ export default function DetailedHistory() {
         <table className="w-full text-[11px] text-left border-collapse min-w-[1200px]">
           <thead className="bg-gray-100 text-gray-600 font-bold uppercase border-b">
             <tr>
-              <th className="p-3 border-r">Waktu</th>
               <th className="p-3 border-r">No. PO / Ref</th>
               <th className="p-3 border-r">Part No</th>
               <th className="p-3 border-r">Nama Part & Warna</th>
@@ -38,6 +37,7 @@ export default function DetailedHistory() {
               <th className="p-3 border-r text-right bg-gray-50">Awal (Gram)</th>
               <th className="p-3 border-r text-right bg-green-50">Akhir (Gram)</th>
               <th className="p-3 text-right bg-green-50">Akhir (Kg)</th>
+              <th className="p-3 border-r">Waktu</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -49,9 +49,7 @@ export default function DetailedHistory() {
 
               return (
                 <tr key={log.id} className="hover:bg-gray-50 transition">
-                  <td className="p-3 border-r whitespace-nowrap">
-                    {new Date(log.created_at).toLocaleString('id-ID')}
-                  </td>
+                  
                   <td className="p-3 border-r font-bold text-blue-600">{log.po_number || '-'}</td>
                   <td className="p-3 border-r font-mono">{log.part_no || 'N/A'}</td>
                   <td className="p-3 border-r">
@@ -87,6 +85,9 @@ export default function DetailedHistory() {
                   </td>
                   <td className="p-3 text-right font-bold text-emerald-700 bg-green-50/30">
                     {Number(log.stock_final).toFixed(3)} Kg
+                  </td>
+                  <td className="p-3 border-r whitespace-nowrap">
+                    {new Date(log.created_at).toLocaleString('id-ID')}
                   </td>
                 </tr>
               );
