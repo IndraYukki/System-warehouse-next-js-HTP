@@ -49,8 +49,7 @@ export default function MaterialInventory() {
               <th className="p-4 border-r">Nama Material</th>
               <th className="p-4 border-r">Kategori</th>
               <th className="p-4 border-r text-center">Lokasi</th>
-              <th className="p-4 border-r text-right bg-blue-50/30">Stok (Gram)</th>
-              <th className="p-4 text-right bg-emerald-50/30">Stok (Kg)</th>
+              <th className="p-4 text-right bg-blue-50/30">Stok (g/kg)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -68,11 +67,9 @@ export default function MaterialInventory() {
                       {m.location || '-'}
                     </span>
                   </td>
-                  <td className="p-4 border-r text-right font-mono text-blue-600">
-                    {(Number(m.stock_kg) * 1000).toLocaleString('id-ID')} g
-                  </td>
-                  <td className="p-4 text-right font-black text-emerald-600">
-                    {Number(m.stock_kg).toFixed(3)} Kg
+                  <td className="p-4 text-right font-mono text-blue-600">
+                    <div>{(Number(m.stock_kg) * 1000).toLocaleString('id-ID')} g</div>
+                    <div className="text-sm">{Number(m.stock_kg).toFixed(3)} kg</div>
                   </td>
                 </tr>
               ))
