@@ -91,7 +91,7 @@ export default function LoginPage() {
                 className="pl-10 bg-slate-50 border-slate-200 focus:bg-white transition-all duration-200"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin_wms"
+                placeholder="admin_FG"
                 required
               />
             </div>
@@ -128,7 +128,7 @@ export default function LoginPage() {
 
     {/* FOOTER: Tetap di bawah tanpa mendorong layar */}
     <div className="mt-8 text-white/70 text-sm font-medium z-10">
-      &copy; {new Date().getFullYear()} WMS Material & Finish Good System
+      &copy; {new Date().getFullYear()} HTP Material & Finish Good System
     </div>
   </div>
 );
