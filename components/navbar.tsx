@@ -125,7 +125,7 @@ export function Navbar() {
                 </Link>
                 <Link href="/material-area/master-bom" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
                   <div className="bg-emerald-100 p-2 rounded-lg mr-4"><Package className="h-4 w-4 text-emerald-600" /></div>
-                  <div className="flex flex-col"><span className="text-sm font-bold">Resep Produk</span><span className="text-[10px] text-gray-400">Racikan Gramasi</span></div>
+                  <div className="flex flex-col"><span className="text-sm font-bold">BOM produk</span><span className="text-[10px] text-gray-400">Racikan Gramasi</span></div>
                 </Link>
                 <Link href="/material-area/inbound" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
                   <div className="bg-emerald-100 p-2 rounded-lg mr-4"><Truck className="h-4 w-4 text-emerald-600" /></div>

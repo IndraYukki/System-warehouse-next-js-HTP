@@ -54,7 +54,7 @@ export default function MasterBOM() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Master BOM (Resep Produk)</h1>
+        <h1 className="text-2xl font-bold">Bill Of Material (BOM)</h1>
         <button onClick={() => setIsModalOpen(true)} className="bg-emerald-600 text-white px-4 py-2 rounded">
           + Tambah Produk
         </button>

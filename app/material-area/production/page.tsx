@@ -6,7 +6,7 @@ export default function ProductionOutbound() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBom, setSelectedBom] = useState<any>(null);
   const [qty, setQty] = useState(0);
-  const [scrap, setScrap] = useState(2); 
+  const [scrap, setScrap] = useState(3); 
   const [poNumber, setPoNumber] = useState(""); // State baru untuk No PO
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);

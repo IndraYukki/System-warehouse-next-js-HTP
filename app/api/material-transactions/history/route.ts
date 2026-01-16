@@ -1,6 +1,10 @@
 import { getPool } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+
+export const dynamic = "force-dynamic";
+
+
 export async function GET() {
   try {
     const pool = getPool();
