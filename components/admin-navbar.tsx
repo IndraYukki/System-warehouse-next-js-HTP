@@ -104,15 +104,15 @@ export function AdminNavbar() {
   const navItems = getAdminNavItems();
 
   return (
-    <header className={`border-b bg-muted/40 sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-muted/90 backdrop-blur-sm' : 'bg-muted/40'}`}>
+    <header className={`border-b bg-cyan-300/20 sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-cyan-400/90 backdrop-blur-sm shadow-sm' : 'bg-cyan-400'}`}>
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-4">
-          <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold">
+          <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold text-white">
             <span className="text-xl">📋</span>
             <span>Admin Dashboard</span>
           </Link>
           {!loading && user && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-cyan-100">
               Selamat {getGreeting()} {user.nama_panggilan}, Selamat Datang
             </p>
           )}
@@ -125,9 +125,9 @@ export function AdminNavbar() {
                 key={item.key}
                 variant={pathname === item.href ? "default" : "ghost"}
                 asChild
-                className={pathname === item.href ? "bg-blue-600 hover:bg-blue-700" : ""}
+                className={pathname === item.href ? "bg-blue-600 hover:bg-blue-700 text-white" : "text-white hover:text-cyan-100"}
               >
-                <Link href={item.href}>
+                <Link href={item.href} className="text-white">
                   <Icon className="mr-2 h-4 w-4" />
                   {item.label}
                 </Link>
@@ -141,11 +141,12 @@ export function AdminNavbar() {
               <Button
                 variant="outline"
                 onClick={() => setShowDropdown(!showDropdown)}
+                className="text-white border-cyan-300 hover:bg-cyan-700"
               >
                 <User className="mr-2 h-4 w-4" /> {user.nama_panggilan}
               </Button>
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-50 py-1">
+                <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-0 border border-slate-200 rounded-md shadow-lg z-50 py-1">
                   <Link
                     href="/"
                     className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"

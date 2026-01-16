@@ -24,6 +24,10 @@ module.exports = {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
       },
+      backdropBlur: {
+        '0': '0',
+        'none': '0',
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

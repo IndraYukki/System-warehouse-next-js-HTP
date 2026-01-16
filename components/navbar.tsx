@@ -47,7 +47,7 @@ export function Navbar() {
   }, [])
 
   return (
-    <header className={`border-b sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-background/90 backdrop-blur-sm shadow-sm' : 'bg-background'}`}>
+    <header className={`border-b sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-cyan-400/90 backdrop-blur-sm shadow-sm' : 'bg-cyan-400'}`}>
       <div className="container flex h-16 items-center justify-between px-4">
         
         {/* LOGO */}
@@ -63,16 +63,16 @@ export function Navbar() {
 
         {/* NAVIGASI */}
         <nav className="flex items-center gap-1">
-          
-          <Button variant={pathname === "/" ? "secondary" : "ghost"} asChild>
+
+          <Button variant={pathname === "/" ? "secondary" : "ghost"} asChild className="text-white hover:text-cyan-100">
             <Link href="/"><Home className="mr-2 h-4 w-4" /> Home</Link>
           </Button>
 
           {/* DROPDOWN FINISH GOODS */}
           <div className="relative" ref={fgRef}>
-            <Button 
+            <Button
               variant={pathname === "/inventory" || pathname === "/inbound" || pathname === "/outbound" || pathname === "/history" ? "default" : "ghost"}
-              className={pathname === "/inventory" || pathname === "/inbound" || pathname === "/outbound" || pathname === "/history" ? "bg-blue-600 text-white hover:bg-blue-700" : "hover:text-blue-600"}
+              className={pathname === "/inventory" || pathname === "/inbound" || pathname === "/outbound" || pathname === "/history" ? "bg-blue-600 text-white hover:bg-blue-700" : "hover:text-cyan-100 text-white"}
               onClick={() => { setShowFGMenu(!showFGMenu); setShowMaterialMenu(false); }}
             >
               <Package className="mr-2 h-4 w-4" />
@@ -81,7 +81,7 @@ export function Navbar() {
             </Button>
 
             {showFGMenu && (
-              <div className="absolute left-0 mt-2 w-64 bg-white border rounded-2xl shadow-2xl z-50 py-3 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute left-0 mt-2 w-64 bg-white/95 backdrop-blur-0 border border-slate-200 rounded-2xl shadow-2xl z-50 py-3 animate-in fade-in slide-in-from-top-2">
                 <p className="px-5 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Produk Jadi</p>
                 <Link href="/inventory" className="flex items-center px-5 py-3 hover:bg-blue-50 text-gray-700 transition" onClick={() => setShowFGMenu(false)}>
                   <div className="bg-blue-100 p-2 rounded-lg mr-4"><Package className="h-4 w-4 text-blue-600" /></div>
@@ -106,9 +106,9 @@ export function Navbar() {
 
           {/* DROPDOWN RAW MATERIAL */}
           <div className="relative" ref={materialRef}>
-            <Button 
+            <Button
               variant={pathname?.startsWith("/material-area") ? "default" : "ghost"}
-              className={pathname?.startsWith("/material-area") ? "bg-emerald-600 text-white hover:bg-emerald-700" : "hover:text-emerald-600"}
+              className={pathname?.startsWith("/material-area") ? "bg-emerald-600 text-white hover:bg-emerald-700" : "hover:text-cyan-100 text-white"}
               onClick={() => { setShowMaterialMenu(!showMaterialMenu); setShowFGMenu(false); }}
             >
               <Database className="mr-2 h-4 w-4" />
@@ -117,7 +117,7 @@ export function Navbar() {
             </Button>
 
             {showMaterialMenu && (
-              <div className="absolute left-0 mt-2 w-64 bg-white border rounded-2xl shadow-2xl z-50 py-3 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute left-0 mt-2 w-64 bg-white/95 backdrop-blur-0 border border-slate-200 rounded-2xl shadow-2xl z-50 py-3 animate-in fade-in slide-in-from-top-2">
                 <p className="px-5 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Biji Plastik</p>
                 <Link href="/material-area/inventory" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
                   <div className="bg-emerald-100 p-2 rounded-lg mr-4"><Package className="h-4 w-4 text-emerald-600" /></div>
@@ -147,15 +147,15 @@ export function Navbar() {
           {/* AREA AKUN & LOGIN (DIKEMBALIKAN) */}
           <div className="ml-2 flex items-center">
             {loading ? (
-              <Button variant="outline" disabled className="animate-pulse">Loading...</Button>
+              <Button variant="outline" disabled className="animate-pulse text-white">Loading...</Button>
             ) : isLoggedIn ? (
               <div className="relative" ref={dropdownRef}>
-                <Button variant="outline" onClick={() => setShowDropdown(!showDropdown)} className="border-blue-200 hover:bg-blue-50">
-                  <User className="mr-2 h-4 w-4 text-blue-600" /> 
+                <Button variant="outline" onClick={() => setShowDropdown(!showDropdown)} className="border-cyan-300 text-white hover:bg-cyan-700">
+                  <User className="mr-2 h-4 w-4 text-white" />
                   {user?.nama_panggilan || "Akun"}
                 </Button>
                 {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white border rounded-xl shadow-xl z-50 py-2 overflow-hidden">
+                  <div className="absolute right-0 mt-2 w-52 bg-white/95 backdrop-blur-0 border border-cyan-200 rounded-xl shadow-xl z-50 py-2 overflow-hidden">
                     {(user.role === 'admin' || user.role === 'manager') && (
                       <>
                         <Link href="/admin/dashboard" className="flex items-center px-4 py-2.5 hover:bg-gray-50 text-sm transition" onClick={() => setShowDropdown(false)}>
@@ -174,8 +174,8 @@ export function Navbar() {
                 )}
               </div>
             ) : (
-              <Button asChild className="bg-blue-600 hover:bg-blue-700 shadow-md">
-                <Link href="/login">Login Admin</Link>
+              <Button asChild className="bg-blue-600 hover:bg-blue-700 shadow-md text-white">
+                <Link href="/login" className="text-white">Login Admin</Link>
               </Button>
             )}
           </div>
