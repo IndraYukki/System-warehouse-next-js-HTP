@@ -27,10 +27,11 @@ export default function DetailedHistory() {
           <thead className="bg-gray-100 text-gray-600 font-bold uppercase border-b">
             <tr>
               <th className="p-3 border-r">No. PO / Ref</th>
+              <th className="p-3 border-r text-center">Status</th>
               <th className="p-3 border-r">Part No (OUT)</th>
               <th className="p-3 border-r">Nama Part & Warna (OUT)</th>
               <th className="p-3 border-r">Material & Kategori</th>
-              <th className="p-3 border-r text-center">Status</th>
+              <th className="p-3 border-r text-center">Status Material</th>
               <th className="p-3 border-r text-center">Qty (Pcs)</th>
               <th className="p-3 border-r text-right bg-blue-50">Trans (g/kg)</th>
               <th className="p-3 border-r text-right bg-gray-50">Awal (g/kg)</th>
@@ -50,6 +51,13 @@ export default function DetailedHistory() {
 
                   <td className="p-3 border-r font-bold text-blue-600">{log.po_number || '-'}</td>
 
+                  <td className="p-3 border-r text-center">
+                    <span className={`px-2 py-0.5 rounded text-[9px] font-black ${
+                      log.type === 'IN' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    }`}>
+                      {log.type}
+                    </span>
+                  </td>
                   {/* Kolom Part No hanya ditampilkan untuk transaksi OUT */}
                   <td className="p-3 border-r font-mono">
                     {log.type === 'OUT' ? log.part_no || 'N/A' : '-'}
@@ -66,18 +74,22 @@ export default function DetailedHistory() {
                       <div className="font-bold text-gray-500 italic">Inbound Material</div>
                     )}
                   </td>
-
                   <td className="p-3 border-r">
                     <div className="font-bold">{log.material_name}</div>
                     <div className="text-gray-400 italic">{log.category_name || '-'}</div>
                   </td>
                   <td className="p-3 border-r text-center">
-                    <span className={`px-2 py-0.5 rounded text-[9px] font-black ${
-                      log.type === 'IN' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                    }`}>
-                      {log.type}
+                    <span
+                      className={`px-2 py-0.5 rounded text-[9px] font-black ${
+                        log.material_status === 'ORI'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-orange-100 text-orange-700'
+                      }`}
+                    >
+                      {log.material_status}
                     </span>
                   </td>
+
                   <td className="p-3 border-r text-center font-bold">{log.qty_pcs || '-'}</td>
 
                   {/* Gabungan Transaksi (Gram & Kg) */}

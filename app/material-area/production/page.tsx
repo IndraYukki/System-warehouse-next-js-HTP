@@ -1,24 +1,28 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 export default function ProductionOutbound() {
-  const [boms, setBoms] = useState([]);
+  const [boms, setBoms] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBom, setSelectedBom] = useState<any>(null);
   const [qty, setQty] = useState(0);
-  const [scrap, setScrap] = useState(3); 
-  const [poNumber, setPoNumber] = useState(""); // State baru untuk No PO
+  const [poNumber, setPoNumber] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // === FIXED RULES ===
+  const CUT_LOSS_PERCENT = 3;
+  const [oriPercent, setOriPercent] = useState(100);
+
   useEffect(() => {
-    fetch('/api/material-bom').then(res => res.json()).then(setBoms);
+    fetch("/api/material-bom")
+      .then(res => res.json())
+      .then(setBoms);
   }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    setSelectedBom(null); 
+    setSearchTerm(e.target.value);
+    setSelectedBom(null);
     setShowSuggestions(true);
   };
 
@@ -28,27 +32,45 @@ export default function ProductionOutbound() {
     setShowSuggestions(false);
   };
 
+  // === KALKULASI ===
+  let baseKg = 0;
+  let totalKg = 0;
+  let scrapPercent = 100 - oriPercent;
+  let oriKg = 0;
+  let scrapKg = 0;
+
+  if (selectedBom && qty > 0) {
+    const weightPerPcs =
+      Number(selectedBom.weight_part) +
+      Number(selectedBom.weight_runner) / Number(selectedBom.cavity);
+
+    baseKg = (weightPerPcs * qty) / 1000;
+    totalKg = baseKg * (1 + CUT_LOSS_PERCENT / 100);
+    oriKg = totalKg * (oriPercent / 100);
+    scrapKg = totalKg * (scrapPercent / 100);
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedBom) return;
-    
+
     setLoading(true);
-    const res = await fetch('/api/material-production', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        bom_id: selectedBom.id, 
-        qty_produced: qty, 
-        scrap_percentage: scrap,
-        po_number: poNumber // Mengirim No PO ke API
+    const res = await fetch("/api/material-production", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        bom_id: selectedBom.id,
+        qty_produced: qty,
+        ori_percent: oriPercent,
+        po_number: poNumber
       })
     });
 
     if (res.ok) {
-      alert("Transaksi Berhasil! Stok telah dipotong otomatis.");
+      alert("Transaksi produksi berhasil!");
       window.location.reload();
     } else {
-      alert("Terjadi kesalahan saat memproses data.");
+      alert("Terjadi kesalahan.");
     }
     setLoading(false);
   };
@@ -57,51 +79,58 @@ export default function ProductionOutbound() {
     <div className="p-8 max-w-5xl mx-auto">
       <div className="bg-white rounded-2xl shadow-xl border overflow-hidden">
         <div className="bg-blue-600 p-6 text-white">
-          <h1 className="text-2xl font-bold">Production Report (Outbound)</h1>
-          <p className="text-blue-100 italic text-sm text-balance">Input hasil produksi untuk pemotongan stok otomatis</p>
+          <h1 className="text-2xl font-bold">Production Outbound</h1>
+          <p className="text-blue-100 italic text-sm">
+            Pemakaian material produksi (ORI / SCRAP)
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-          
+        <form
+          onSubmit={handleSubmit}
+          className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8"
+        >
+          {/* LEFT */}
           <div className="space-y-6">
             <div className="relative">
-              <label className="block text-sm font-bold text-gray-700 mb-2">Input Part Number</label>
-              <input 
-                type="text" 
-                placeholder="Ketik Part No..." 
-                className={`w-full p-3 border-2 rounded-xl outline-none transition ${selectedBom ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 focus:border-blue-500'}`}
+              <label className="block text-sm font-bold mb-2">Part No</label>
+              <input
+                type="text"
+                className="w-full p-3 border-2 rounded-xl"
                 value={searchTerm}
                 onChange={handleSearch}
                 required
               />
-              {searchTerm && !selectedBom && (
-                <p className="text-red-500 text-xs mt-1 font-semibold animate-pulse">⚠ Masukkan Part No yang benar</p>
-              )}
               {showSuggestions && searchTerm && !selectedBom && (
-                <div className="absolute z-10 w-full bg-white border rounded-xl mt-1 shadow-2xl max-h-60 overflow-y-auto">
-                  {boms.filter((b:any) => b.part_no.toLowerCase().includes(searchTerm.toLowerCase())).map((item: any) => (
-                    <div key={item.id} className="p-3 hover:bg-blue-50 cursor-pointer border-b last:border-0" onClick={() => selectProduct(item)}>
-                      <p className="font-bold text-blue-700">{item.part_no}</p>
-                      <p className="text-xs text-gray-500">{item.product_name}</p>
-                    </div>
-                  ))}
+                <div className="absolute z-10 w-full bg-white border rounded-xl mt-1 shadow">
+                  {boms
+                    .filter(b =>
+                      b.part_no
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase())
+                    )
+                    .map(item => (
+                      <div
+                        key={item.id}
+                        className="p-3 hover:bg-blue-50 cursor-pointer"
+                        onClick={() => selectProduct(item)}
+                      >
+                        <b>{item.part_no}</b>
+                        <div className="text-xs text-gray-500">
+                          {item.product_name}
+                        </div>
+                      </div>
+                    ))}
                 </div>
               )}
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-              <label className="text-xs font-bold text-gray-400 uppercase">Nama Part Terdeteksi</label>
-              <p className={`text-lg font-black ${selectedBom ? 'text-gray-800' : 'text-gray-300'}`}>
-                {selectedBom ? selectedBom.product_name : "---"}
-              </p>
-            </div>
-
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">No. Laporan Produksi / PO</label>
-              <input 
-                type="text" 
-                placeholder="PROD-2024-XXXX"
-                className="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-blue-500 outline-none"
+              <label className="block text-sm font-bold mb-2">
+                No Produksi / PO
+              </label>
+              <input
+                type="text"
+                className="w-full p-3 border-2 rounded-xl"
                 value={poNumber}
                 onChange={e => setPoNumber(e.target.value)}
                 required
@@ -110,48 +139,81 @@ export default function ProductionOutbound() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Qty Produksi (Pcs)</label>
-                <input type="number" className="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-blue-500 outline-none" onChange={e => setQty(parseInt(e.target.value))} required />
+                <label className="block text-sm font-bold mb-2">
+                  Qty Produksi (pcs)
+                </label>
+                <input
+                  type="number"
+                  className="w-full p-3 border-2 rounded-xl"
+                  onChange={e => setQty(Number(e.target.value))}
+                  required
+                />
               </div>
+
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Scrap (%)</label>
-                <input type="number" step="0.1" value={scrap} className="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-blue-500 outline-none" onChange={e => setScrap(parseFloat(e.target.value))} required />
+                <label className="block text-sm font-bold mb-2">
+                  ORI (%)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={oriPercent}
+                  onChange={e => setOriPercent(Number(e.target.value))}
+                  className="w-full p-3 border-2 rounded-xl"
+                  required
+                />
               </div>
             </div>
 
-            <button disabled={!selectedBom || loading} className={`w-full py-4 rounded-2xl font-bold text-white shadow-lg transition ${selectedBom ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-300 cursor-not-allowed'}`}>
-              {loading ? "Memproses..." : "Konfirmasi & Potong Stok"}
+            <button
+              disabled={
+                !selectedBom ||
+                loading ||
+                oriPercent < 0 ||
+                oriPercent > 100
+              }
+              className="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl"
+            >
+              {loading ? "Memproses..." : "Konfirmasi Produksi"}
             </button>
           </div>
 
-          <div className="bg-gray-50 rounded-2xl p-6 border-2 border-dashed border-gray-200">
-            <h2 className="text-lg font-bold text-gray-700 mb-4 border-b pb-2 text-center uppercase">Detail Kalkulasi Material</h2>
+          {/* RIGHT */}
+          <div className="bg-gray-50 rounded-2xl p-6 border">
+            <h2 className="font-bold mb-4 text-center">
+              Kalkulasi Material
+            </h2>
+
             {selectedBom ? (
-              <div className="space-y-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Material Utama:</span>
-                  <span className="font-bold text-emerald-600">{selectedBom.material_name}</span>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>ORI</span>
+                  <span className="font-bold text-emerald-600">
+                    {oriKg.toFixed(3)} Kg
+                  </span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Warna:</span>
-                  <span className="font-bold">{selectedBom.product_color}</span>
+                <div className="flex justify-between">
+                  <span>SCRAP</span>
+                  <span className="font-bold text-orange-600">
+                    {scrapKg.toFixed(3)} Kg
+                  </span>
                 </div>
                 <hr />
-                <div className="bg-white p-6 rounded-2xl border-2 border-blue-500 mt-6 shadow-inner">
-                  <p className="text-xs font-bold text-blue-500 text-center uppercase mb-1">Total Estimasi Keluar</p>
-                  <p className="text-4xl font-black text-blue-900 text-center">
-                    {(( (Number(selectedBom.weight_part) + (Number(selectedBom.weight_runner) / selectedBom.cavity)) * qty / 1000) * (1 + scrap/100)).toFixed(3)}
-                    <span className="text-lg ml-2">Kg</span>
-                  </p>
+                <div className="flex justify-between text-lg font-black">
+                  <span>TOTAL</span>
+                  <span>{totalKg.toFixed(3)} Kg</span>
                 </div>
+                <p className="text-xs text-gray-400 italic text-center">
+                  Termasuk cut loss 3%
+                </p>
               </div>
             ) : (
-              <div className="h-full flex flex-col items-center justify-center text-gray-400 py-20 italic">
-                <p>Silakan masukkan Part No untuk melihat detail kalkulasi</p>
-              </div>
+              <p className="text-center text-gray-400 italic">
+                Pilih Part No terlebih dahulu
+              </p>
             )}
           </div>
-
         </form>
       </div>
     </div>

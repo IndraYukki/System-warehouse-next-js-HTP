@@ -5,11 +5,13 @@ export default function MaterialInbound() {
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    material_id: "",
-    quantity: 0,
-    description: "",
-    po_number: ""
-  });
+  material_id: "",
+  material_status: "ORI", // default aman
+  quantity: 0,
+  description: "",
+  po_number: ""
+});
+
 
   useEffect(() => {
     fetch('/api/material')
@@ -30,7 +32,14 @@ export default function MaterialInbound() {
 
       if (res.ok) {
         alert("Stok berhasil ditambahkan!");
-        setForm({ material_id: "", quantity: 0, description: "" });
+        setForm({
+          material_id: "",
+          material_status: "ORI",
+          quantity: 0,
+          description: "",
+          po_number: ""
+        });
+
       } else {
         alert("Gagal menambahkan stok.");
       }
@@ -66,6 +75,24 @@ export default function MaterialInbound() {
                 ))}
               </select>
             </div>
+            {/* Status Material */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Status Material
+                </label>
+                <select
+                  className="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-emerald-500 outline-none transition"
+                  value={form.material_status}
+                  onChange={e =>
+                    setForm({ ...form, material_status: e.target.value })
+                  }
+                  required
+                >
+                  <option value="ORI">ORI (Virgin / Original)</option>
+                  <option value="SCRAP">SCRAP (Recycle / Afalan)</option>
+                </select>
+              </div>
+
 
             {/* Jumlah Kg */}
             <div>
