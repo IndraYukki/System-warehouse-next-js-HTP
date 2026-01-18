@@ -5,10 +5,21 @@ export async function GET() {
   try {
     const pool = getPool();
     const query = `
-      SELECT mb.*, m.material_name 
-      FROM material_bom mb
-      LEFT JOIN materials m ON mb.material_id = m.id
-      ORDER BY mb.product_name ASC
+      SELECT
+      mb.id,
+      mb.part_no,
+      mb.product_name,
+      mb.weight_part,
+      mb.weight_runner,
+      mb.cavity,
+      m.material_name,
+      m.category_name,
+      m.stock_ori_kg,
+      m.stock_scrap_kg
+    FROM material_bom mb
+    JOIN materials m ON mb.material_id = m.id
+    ORDER BY mb.part_no
+
     `;
     const [rows] = await pool.execute(query);
     return NextResponse.json(rows);

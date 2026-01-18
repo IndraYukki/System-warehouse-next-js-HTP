@@ -1,89 +1,78 @@
+// app/api/material-transactions/route.ts
 import { getPool } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const pool = getPool();
-  const connection = await pool.getConnection();
+  const conn = await pool.getConnection();
 
   try {
     const {
       material_id,
+      material_status,
       type,
       quantity,
-      material_status,
       description,
       po_number
     } = await req.json();
 
-    const qty = Number(quantity);
-    if (qty <= 0) throw new Error("Quantity tidak valid");
+    if (type !== "IN") {
+      throw new Error("Endpoint ini hanya untuk INBOUND");
+    }
 
-    await connection.beginTransaction();
+    await conn.beginTransaction();
 
-    const [rows]: any = await connection.execute(
-      `
-      SELECT stock_ori_kg, stock_scrap_kg
-      FROM materials
-      WHERE id = ?
-      `,
+    const [rows]: any = await conn.execute(
+      `SELECT stock_ori_kg, stock_scrap_kg FROM materials WHERE id = ?`,
       [material_id]
     );
 
-    if (rows.length === 0) throw new Error("Material tidak ditemukan");
+    if (!rows.length) throw new Error("Material tidak ditemukan");
 
-    let { stock_ori_kg, stock_scrap_kg } = rows[0];
+    let stockOri = Number(rows[0].stock_ori_kg || 0);
+    let stockScrap = Number(rows[0].stock_scrap_kg || 0);
 
-    let newOri = Number(stock_ori_kg);
-    let newScrap = Number(stock_scrap_kg);
+    const stockInitial =
+      material_status === "ORI" ? stockOri : stockScrap;
 
-    if (type === "IN") {
-      if (material_status === "ORI") newOri += qty;
-      else newScrap += qty;
-    } else {
-      if (material_status === "ORI") newOri -= qty;
-      else newScrap -= qty;
-    }
+    if (material_status === "ORI") stockOri += quantity;
+    else stockScrap += quantity;
 
-    // SIMPAN HISTORY
-    await connection.execute(
-      `
-      INSERT INTO material_transactions
-      (material_id,bom_id, type, quantity, material_status, description, po_number)
-      VALUES (?, ?, ?, ?, ?, ?)
-      `,
+    const stockFinal =
+      material_status === "ORI" ? stockOri : stockScrap;
+
+    // update materials
+    await conn.execute(
+      `UPDATE materials
+       SET stock_ori_kg = ?, stock_scrap_kg = ?
+       WHERE id = ?`,
+      [stockOri, stockScrap, material_id]
+    );
+
+    // history
+    await conn.execute(
+      `INSERT INTO material_transactions
+       (material_id, material_status, type, quantity,
+        stock_initial, stock_final, description, po_number)
+       VALUES (?, ?, 'IN', ?, ?, ?, ?, ?)`,
       [
         material_id,
-        bom.id,
-        type,
-        qty,
         material_status,
+        quantity,
+        stockInitial,
+        stockFinal,
         description,
         po_number
       ]
     );
 
-    // UPDATE STOCK
-    await connection.execute(
-      `
-      UPDATE materials
-      SET stock_ori_kg = ?, stock_scrap_kg = ?
-      WHERE id = ?
-      `,
-      [newOri, newScrap, material_id]
-    );
+    await conn.commit();
+    return NextResponse.json({ message: "Inbound berhasil" });
 
-    await connection.commit();
-
-    return NextResponse.json({
-      message: "Transaksi berhasil",
-      stock_ori_kg: newOri,
-      stock_scrap_kg: newScrap
-    });
-
-  } catch (error: any) {
-    await connection.rollback();
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (err: any) {
+    await conn.rollback();
+    return NextResponse.json({ error: err.message }, { status: 500 });
   } finally {
-    connection.release();
+    conn.release();
   }
 }

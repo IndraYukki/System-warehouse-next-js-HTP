@@ -180,40 +180,74 @@ export default function ProductionOutbound() {
           </div>
 
           {/* RIGHT */}
-          <div className="bg-gray-50 rounded-2xl p-6 border">
-            <h2 className="font-bold mb-4 text-center">
-              Kalkulasi Material
-            </h2>
+            <div className="bg-gray-50 rounded-2xl p-6 border">
+              <h2 className="font-bold mb-4 text-center">
+                Kalkulasi Material
+              </h2>
 
-            {selectedBom ? (
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>ORI</span>
-                  <span className="font-bold text-emerald-600">
-                    {oriKg.toFixed(3)} Kg
-                  </span>
+              {selectedBom ? (
+                <div className="space-y-4 text-sm">
+
+                  {/* INFO MATERIAL */}
+                  <div className="border rounded-lg p-3 bg-white">
+                    <div className="font-bold">Material</div>
+                    <div>{selectedBom.material_name}</div>
+                    <div className="text-xs text-gray-500">
+                      {selectedBom.category_name}
+                    </div>
+                  </div>
+
+                  {/* STOCK */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-emerald-100 p-3 rounded-lg">
+                      <div className="font-bold text-emerald-700">Stock ORI</div>
+                      <div>{selectedBom.stock_ori_kg} Kg</div>
+                    </div>
+
+                    <div className="bg-orange-100 p-3 rounded-lg">
+                      <div className="font-bold text-orange-700">Stock SCRAP</div>
+                      <div>{selectedBom.stock_scrap_kg} Kg</div>
+                    </div>
+                  </div>
+
+                  <hr />
+
+                  {/* KALKULASI */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>ORI</span>
+                      <span className="font-bold text-emerald-600">
+                        {oriKg.toFixed(3)} Kg
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span>SCRAP</span>
+                      <span className="font-bold text-orange-600">
+                        {scrapKg.toFixed(3)} Kg
+                      </span>
+                    </div>
+
+                    <hr />
+
+                    <div className="flex justify-between text-lg font-black">
+                      <span>TOTAL</span>
+                      <span>{totalKg.toFixed(3)} Kg</span>
+                    </div>
+
+                    <p className="text-xs text-gray-400 italic text-center">
+                      Termasuk cut loss 3%
+                    </p>
+                  </div>
+
                 </div>
-                <div className="flex justify-between">
-                  <span>SCRAP</span>
-                  <span className="font-bold text-orange-600">
-                    {scrapKg.toFixed(3)} Kg
-                  </span>
-                </div>
-                <hr />
-                <div className="flex justify-between text-lg font-black">
-                  <span>TOTAL</span>
-                  <span>{totalKg.toFixed(3)} Kg</span>
-                </div>
-                <p className="text-xs text-gray-400 italic text-center">
-                  Termasuk cut loss 3%
+              ) : (
+                <p className="text-center text-gray-400 italic">
+                  Pilih Part No terlebih dahulu
                 </p>
-              </div>
-            ) : (
-              <p className="text-center text-gray-400 italic">
-                Pilih Part No terlebih dahulu
-              </p>
-            )}
-          </div>
+              )}
+            </div>
+
         </form>
       </div>
     </div>

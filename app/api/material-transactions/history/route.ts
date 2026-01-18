@@ -4,17 +4,17 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const pool = getPool();
-
   try {
-    const [rows]: any = await pool.execute(`
+    const pool = await getPool();
+
+    const [rows] = await pool.execute(`
       SELECT
         mt.id,
         mt.po_number,
         mt.type,
         mt.material_status,
-        mt.qty_pcs,
         mt.quantity,
+        mt.qty_pcs,
         mt.stock_initial,
         mt.stock_final,
         mt.created_at,
@@ -22,19 +22,16 @@ export async function GET() {
         mb.part_no,
         mb.product_name,
 
-        m.material_name,
-        m.category_name
+        mat.material_name,
+        mat.category_name
 
       FROM material_transactions mt
-      LEFT JOIN material_bom mb 
-        ON mt.bom_id = mb.id
-      LEFT JOIN materials m 
-        ON mt.material_id = m.id
+      LEFT JOIN material_bom mb ON mt.bom_id = mb.id
+      LEFT JOIN materials mat ON mt.material_id = mat.id
       ORDER BY mt.created_at DESC
     `);
 
     return NextResponse.json(rows);
-
   } catch (error: any) {
     console.error("HISTORY_ERROR:", error.message);
     return NextResponse.json(
