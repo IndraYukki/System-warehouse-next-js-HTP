@@ -8,6 +8,8 @@ export default function DetailedHistory() {
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
 
   useEffect(() => {
     let url = '/api/material-transactions/history';
@@ -15,6 +17,12 @@ export default function DetailedHistory() {
 
     if (searchTerm) {
       params.append('search', searchTerm);
+    }
+    if (startDate) {
+      params.append('start_date', startDate);
+    }
+    if (endDate) {
+      params.append('end_date', endDate);
     }
     params.append('limit', itemsPerPage.toString());
     params.append('offset', (currentPage * itemsPerPage).toString());
@@ -39,7 +47,7 @@ export default function DetailedHistory() {
         }
       })
       .catch(err => console.error("Fetch error:", err));
-  }, [searchTerm, currentPage, itemsPerPage]);
+  }, [searchTerm, currentPage, itemsPerPage, startDate, endDate]);
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -68,7 +76,7 @@ export default function DetailedHistory() {
         <p className="text-sm text-gray-500">History pergerakan stok lengkap dengan saldo awal/akhir</p>
       </div>
 
-      {/* Input Pencarian dan Control Pagination */}
+      {/* Input Pencarian dan Filter Tanggal */}
       <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="relative w-full sm:w-64">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -81,7 +89,78 @@ export default function DetailedHistory() {
           />
         </div>
 
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={startDate || ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                setStartDate(value);
+                // Jika tanggal mulai lebih besar dari tanggal akhir, reset tanggal akhir
+                if (endDate && value && new Date(value) > new Date(endDate)) {
+                  setEndDate(null);
+                }
+              }}
+              className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-600">s.d</span>
+            <input
+              type="date"
+              value={endDate || ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Hanya izinkan tanggal akhir yang sama atau setelah tanggal mulai
+                if (!startDate || !value || new Date(value) >= new Date(startDate)) {
+                  setEndDate(value);
+                }
+              }}
+              min={startDate || undefined}
+              className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <button
+            onClick={() => {
+              setStartDate(null);
+              setEndDate(null);
+            }}
+            className="px-3 py-1 border rounded text-sm hover:bg-gray-100"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+
+      {/* Control Pagination dan Export */}
+      <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-4 w-full sm:w-auto">
+          <button
+            onClick={() => {
+              let url = '/api/material-transactions/history/export';
+              const params = new URLSearchParams();
+
+              if (searchTerm) {
+                params.append('search', searchTerm);
+              }
+              if (startDate) {
+                params.append('start_date', startDate);
+              }
+              if (endDate) {
+                params.append('end_date', endDate);
+              }
+
+              if (params.toString()) {
+                url += '?' + params.toString();
+              }
+
+              window.open(url, '_blank');
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+          >
+            Export CSV
+          </button>
+
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600">Tampilkan:</span>
             <select
