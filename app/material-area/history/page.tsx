@@ -129,6 +129,7 @@ export default function DetailedHistory() {
         <table className="w-full text-[11px] text-left border-collapse min-w-[1200px]">
           <thead className="bg-gray-100 text-gray-600 font-bold uppercase border-b">
             <tr>
+              <th className="p-3 border-r text-center">Customer</th>
               <th className="p-3 border-r">No. PO / Ref</th>
               <th className="p-3 border-r text-center">Status</th>
               <th className="p-3 border-r">Part No (OUT)</th>
@@ -151,6 +152,12 @@ export default function DetailedHistory() {
 
               return (
                 <tr key={log.id} className="hover:bg-gray-50 transition">
+
+                  <td className="p-3 border-r text-center">
+                    <span className="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-[10px] font-bold">
+                      {log.customer_name || '-'}
+                    </span>
+                  </td>
 
                   <td className="p-3 border-r font-bold text-blue-600">{log.po_number || '-'}</td>
 
@@ -181,6 +188,7 @@ export default function DetailedHistory() {
                     <div className="font-bold">{log.material_name}</div>
                     <div className="text-gray-400 italic">{log.category_name || '-'}</div>
                   </td>
+                  
                   <td className="p-3 border-r text-center">
                     <span
                       className={`px-2 py-0.5 rounded text-[9px] font-black ${

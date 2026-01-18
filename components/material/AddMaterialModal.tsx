@@ -1,11 +1,32 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AddMaterialModal({ isOpen, onClose, onRefresh }: any) {
   const [form, setForm] = useState({
     material_name: "",
     category_name: "",
+    location: "",
+    customer_id: ""
   });
+  const [customers, setCustomers] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchCustomers();
+    }
+  }, [isOpen]);
+
+  const fetchCustomers = async () => {
+    try {
+      const res = await fetch("/api/customers"); // Asumsikan ada API untuk mengambil customer
+      if (res.ok) {
+        const data = await res.json();
+        setCustomers(data);
+      }
+    } catch (error) {
+      console.error("Gagal mengambil data customer:", error);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -20,7 +41,7 @@ export default function AddMaterialModal({ isOpen, onClose, onRefresh }: any) {
     if (res.ok) {
       onRefresh();
       onClose();
-      setForm({ material_name: "", category_name: "" });
+      setForm({ material_name: "", category_name: "", location: "", customer_id: "" });
     }
   };
 
@@ -54,14 +75,30 @@ export default function AddMaterialModal({ isOpen, onClose, onRefresh }: any) {
 
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Alamat / Lokasi Penyimpanan</label>
-              <input 
-                type="text" 
-                placeholder="Ketik lokasi (contoh: Rak A-01)" 
+              <input
+                type="text"
+                placeholder="Ketik lokasi (contoh: Rak A-01)"
                 className="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-emerald-500 outline-none transition"
                 value={form.location}
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
                 // Tidak wajib diisi (optional) agar fleksibel
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Customer</label>
+              <select
+                className="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-emerald-500 outline-none transition"
+                value={form.customer_id}
+                onChange={(e) => setForm({ ...form, customer_id: e.target.value })}
+              >
+                <option value="">Pilih Customer</option>
+                {customers.map((customer: any) => (
+                  <option key={customer.id} value={customer.id}>
+                    {customer.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
           <div className="flex justify-end gap-2 mt-6">

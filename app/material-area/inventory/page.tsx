@@ -147,9 +147,10 @@ export default function MaterialInventory() {
         <table className="w-full text-left border-collapse">
           <thead className="bg-gray-50 text-gray-600 text-[11px] font-black uppercase">
             <tr>
-              <th className="p-4 border-r">Grade Material</th>
-              <th className="p-4 border-r">Jenis</th>
+              <th className="p-4 border-r">Nama Material</th>
+              <th className="p-4 border-r">Kategori</th>
               <th className="p-4 border-r text-center">Lokasi</th>
+              <th className="p-4 border-r text-center">Customer</th>
               <th className="p-4 text-right bg-blue-50/30">ORI (kg)</th>
               <th className="p-4 text-right bg-orange-50/30">SCRAP (kg)</th>
               <th className="p-4 text-right bg-gray-50">TOTAL (kg)</th>
@@ -159,7 +160,7 @@ export default function MaterialInventory() {
           <tbody className="divide-y divide-gray-100">
             {materials.length === 0 ? (
               <tr>
-                <td colSpan={5} className="p-10 text-center text-gray-400">Belum ada data material.</td>
+                <td colSpan={6} className="p-10 text-center text-gray-400">Belum ada data material.</td>
               </tr>
             ) : (
               materials.map((m: any) => (
@@ -169,6 +170,11 @@ export default function MaterialInventory() {
                   <td className="p-4 border-r text-center">
                     <span className="px-3 py-1 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-[10px] font-bold">
                       {m.location || '-'}
+                    </span>
+                  </td>
+                  <td className="p-4 border-r text-center">
+                    <span className="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-[10px] font-bold">
+                      {m.customer_name || '-'}
                     </span>
                   </td>
                   <td className="p-4 text-right font-mono text-blue-700">

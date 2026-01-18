@@ -18,6 +18,7 @@ export async function GET(request: Request) {
       FROM material_transactions mt
       LEFT JOIN material_bom mb ON mt.bom_id = mb.id
       LEFT JOIN materials mat ON mt.material_id = mat.id
+      LEFT JOIN customers c ON mat.customer_id = c.id
     `;
 
     // Query untuk mengambil data
@@ -38,11 +39,14 @@ export async function GET(request: Request) {
         mb.product_color,
 
         mat.material_name,
-        mat.category_name
+        mat.category_name,
+        mat.customer_id,
+        c.nama_customer AS customer_name
 
       FROM material_transactions mt
       LEFT JOIN material_bom mb ON mt.bom_id = mb.id
       LEFT JOIN materials mat ON mt.material_id = mat.id
+      LEFT JOIN customers c ON mat.customer_id = c.id
     `;
 
     // Tambahkan kondisi pencarian jika searchTerm ada
@@ -59,7 +63,7 @@ export async function GET(request: Request) {
       query += searchCondition;
     }
 
-    // Tambahkan ORDER BY ke query utama, LIMIT dan OFFSET akan ditambahkan nanti
+    // Tambahkan ORDER BY ke query utama
     query += ` ORDER BY mt.created_at DESC`;
 
     // Validasi limit dan offset untuk mencegah SQL injection

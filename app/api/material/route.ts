@@ -18,27 +18,32 @@ export async function GET(request: Request) {
     // Query untuk menghitung total data
     let countQuery = `
       SELECT COUNT(*) as total
-      FROM materials
+      FROM materials m
+      LEFT JOIN customers c ON m.customer_id = c.id
     `;
 
     // Query untuk mengambil data
     let query = `
       SELECT
-        id,
-        material_name,
-        category_name,
-        location,
-        COALESCE(stock_ori_kg, 0)   AS stock_ori_kg,
-        COALESCE(stock_scrap_kg, 0) AS stock_scrap_kg
-      FROM materials
+        m.id,
+        m.material_name,
+        m.category_name,
+        m.location,
+        m.customer_id,
+        c.nama_customer AS customer_name,
+        COALESCE(m.stock_ori_kg, 0)   AS stock_ori_kg,
+        COALESCE(m.stock_scrap_kg, 0) AS stock_scrap_kg
+      FROM materials m
+      LEFT JOIN customers c ON m.customer_id = c.id
     `;
 
     // Tambahkan kondisi pencarian jika searchTerm ada
     if (searchTerm) {
       const searchCondition = `
         WHERE (
-          material_name LIKE ? OR
-          category_name LIKE ?
+          m.material_name LIKE ? OR
+          m.category_name LIKE ? OR
+          c.nama_customer LIKE ?
         )
       `;
       countQuery += searchCondition;
@@ -53,7 +58,7 @@ export async function GET(request: Request) {
 
     if (searchTerm) {
       const searchPattern = `%${searchTerm}%`;
-      const searchParams = [searchPattern, searchPattern];
+      const searchParams = [searchPattern, searchPattern, searchPattern];
 
       // Eksekusi query count
       const [countResult]: any = await pool.execute(countQuery, searchParams);
@@ -93,18 +98,19 @@ export async function GET(request: Request) {
 export async function POST(req: Request) {
   try {
     const pool = getPool();
-    const { material_name, category_name, location } = await req.json();
+    const { material_name, category_name, location, customer_id } = await req.json();
 
     const query = `
-      INSERT INTO materials 
-      (material_name, category_name, location, stock_ori_kg, stock_scrap_kg)
-      VALUES (?, ?, ?, 0, 0)
+      INSERT INTO materials
+      (material_name, category_name, location, customer_id, stock_ori_kg, stock_scrap_kg)
+      VALUES (?, ?, ?, ?, 0, 0)
     `;
 
     await pool.execute(query, [
       material_name,
       category_name,
-      location || '-'
+      location || '-',
+      customer_id || null
     ]);
 
     return NextResponse.json({

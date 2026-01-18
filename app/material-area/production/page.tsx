@@ -9,6 +9,7 @@ export default function ProductionOutbound() {
   const [poNumber, setPoNumber] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [validationMessage, setValidationMessage] = useState("");
 
   // === FIXED RULES ===
   const CUT_LOSS_PERCENT = 3;
@@ -29,15 +30,33 @@ export default function ProductionOutbound() {
   }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+    const value = e.target.value;
+    setSearchTerm(value);
     setSelectedBom(null);
     setShowSuggestions(true);
+
+    // Tampilkan pesan validasi secara otomatis
+    if (value.trim() === "") {
+      setValidationMessage("");
+    } else {
+      const foundBom = boms.find((bom: any) =>
+        bom.part_no.toLowerCase() === value.toLowerCase()
+      );
+
+      if (!foundBom) {
+        setValidationMessage("masukan part no yang benar!");
+      } else {
+        setValidationMessage(foundBom.product_name);
+      }
+    }
   };
 
   const selectProduct = (item: any) => {
     setSearchTerm(item.part_no);
     setSelectedBom(item);
     setShowSuggestions(false);
+    // Set validasi pesan ketika part no dipilih
+    setValidationMessage(item.product_name);
   };
 
   // === KALKULASI ===
@@ -61,6 +80,12 @@ export default function ProductionOutbound() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedBom) return;
+
+    // Validasi tambahan jika part no tidak valid
+    if (validationMessage === "masukan part no yang benar!") {
+      alert("Silakan masukkan part no yang benar sebelum melanjutkan.");
+      return;
+    }
 
     setLoading(true);
     const res = await fetch("/api/material-production", {
@@ -99,6 +124,18 @@ export default function ProductionOutbound() {
         >
           {/* LEFT */}
           <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold mb-2">
+                Nama Part
+              </label>
+              <input
+                type="text"
+                className="w-full p-3 border-2 rounded-xl bg-gray-100"
+                value={validationMessage || "-"}
+                readOnly
+              />
+            </div>
+
             <div className="relative">
               <label className="block text-sm font-bold mb-2">Part No</label>
               <input

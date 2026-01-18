@@ -1,25 +1,29 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search } from 'lucide-react';
 
 export default function MasterBOM() {
   const [bomData, setBomData] = useState([]);
   const [materials, setMaterials] = useState([]);
+  const [filteredMaterials, setFilteredMaterials] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
-  
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchMaterialTerm, setSearchMaterialTerm] = useState("");
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
   // 1. UPDATE STATE: Tambahkan part_no dan product_color
   const [form, setForm] = useState({
-    part_no: "", 
-    product_name: "", 
-    product_category: "", 
-    product_color: "", 
+    part_no: "",
+    product_name: "",
+    product_category: "",
+    product_color: "",
     material_id: "",
-    weight_part: 0, 
-    weight_runner: 0, 
+    weight_part: 0,
+    weight_runner: 0,
     cavity: 1
   });
 
@@ -47,6 +51,11 @@ export default function MasterBOM() {
     fetchData();
     fetchMaterials();
   }, [searchTerm, currentPage, itemsPerPage]);
+
+  // Update filteredMaterials ketika materials berubah
+  useEffect(() => {
+    setFilteredMaterials(materials);
+  }, [materials]);
 
   const fetchData = () => {
     let url = '/api/material-bom';
@@ -79,11 +88,52 @@ export default function MasterBOM() {
       // Jika API mengembalikan array langsung, gunakan data langsung
       if (data.data && Array.isArray(data.data)) {
         setMaterials(data.data);
+        setFilteredMaterials(data.data);
       } else {
         setMaterials(data);
+        setFilteredMaterials(data);
       }
     });
   };
+
+  // Fungsi untuk menangani pencarian material
+  const handleMaterialSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value;
+    setSearchMaterialTerm(term);
+
+    if (term.trim() === "") {
+      setFilteredMaterials(materials);
+      setShowSuggestions(false);
+    } else {
+      const filtered = materials.filter((material: any) =>
+        material.material_name.toLowerCase().includes(term.toLowerCase()) ||
+        material.category_name.toLowerCase().includes(term.toLowerCase())
+      );
+      setFilteredMaterials(filtered);
+      setShowSuggestions(true);
+    }
+  };
+
+  // Fungsi untuk memilih material dari suggestion
+  const selectMaterial = (material: any) => {
+    setForm({ ...form, material_id: material.id });
+    setSearchMaterialTerm(`${material.material_name} (${material.category_name})`);
+    setShowSuggestions(false);
+  };
+
+  // Fungsi untuk menangani klik di luar elemen autocomplete
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,6 +150,7 @@ export default function MasterBOM() {
         part_no: "", product_name: "", product_category: "", product_color: "",
         material_id: "", weight_part: 0, weight_runner: 0, cavity: 1
       });
+      setSearchMaterialTerm(""); // Reset juga search term
     } else {
       alert("Gagal simpan! Pastikan Part No unik dan semua field terisi.");
     }
@@ -172,27 +223,11 @@ export default function MasterBOM() {
       <div className="bg-white border rounded-lg overflow-hidden">
         <table className="w-full text-left">
           <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="p-3">Part No</th> {/* Kolom Baru */}
-              <th className="p-3">Nama Produk</th>
-              <th className="p-3">Warna</th> {/* Kolom Baru */}
-              <th className="p-3">Material</th>
-              <th className="p-3 text-center">Part(g)</th>
-              <th className="p-3 text-center">Runner(g)</th>
-              <th className="p-3 text-center">Cav</th>
-            </tr>
+            <tr><th className="p-3">Part No</th><th className="p-3">Nama Produk</th><th className="p-3">Warna</th><th className="p-3">Material</th><th className="p-3 text-center">Part(g)</th><th className="p-3 text-center">Runner(g)</th><th className="p-3 text-center">Cav</th></tr>
           </thead>
           <tbody>
             {bomData.map((item: any) => (
-              <tr key={item.id} className="border-b hover:bg-gray-50">
-                <td className="p-3 font-mono text-blue-600 font-bold">{item.part_no}</td>
-                <td className="p-3 font-semibold">{item.product_name}</td>
-                <td className="p-3">{item.product_color || '-'}</td>
-                <td className="p-3 text-emerald-600">{item.material_name || 'Tidak ada'}</td>
-                <td className="p-3 text-center">{item.weight_part}</td>
-                <td className="p-3 text-center">{item.weight_runner}</td>
-                <td className="p-3 text-center">{item.cavity}</td>
-              </tr>
+              <tr key={item.id} className="border-b hover:bg-gray-50"><td className="p-3 font-mono text-blue-600 font-bold">{item.part_no}</td><td className="p-3 font-semibold">{item.product_name}</td><td className="p-3">{item.product_color || '-'}</td><td className="p-3 text-emerald-600">{item.material_name || 'Tidak ada'}</td><td className="p-3 text-center">{item.weight_part}</td><td className="p-3 text-center">{item.weight_runner}</td><td className="p-3 text-center">{item.cavity}</td></tr>
             ))}
           </tbody>
         </table>
@@ -210,7 +245,7 @@ export default function MasterBOM() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg w-full max-w-md space-y-4 shadow-2xl">
             <h2 className="text-xl font-bold border-b pb-2">Tambah Resep Produk</h2>
-            
+
             {/* Input Part No & Warna (Baru) */}
             <div className="grid grid-cols-2 gap-2">
               <input placeholder="Part Number (Unik)" className="border p-2 rounded" required
@@ -224,19 +259,45 @@ export default function MasterBOM() {
             <input placeholder="Nama Produk" className="w-full border p-2 rounded" required
               value={form.product_name}
               onChange={e => setForm({...form, product_name: e.target.value})} />
-            
+
             <input placeholder="Kategori (Otomotif/Elektronik)" className="w-full border p-2 rounded"
               value={form.product_category}
               onChange={e => setForm({...form, product_category: e.target.value})} />
-            
-            <select className="w-full border p-2 rounded bg-yellow-50" required
-              value={form.material_id}
-              onChange={e => setForm({...form, material_id: e.target.value})}>
-              <option value="">-- Pilih Jenis Biji Plastik --</option>
-              {materials.map((m: any) => (
-                <option key={m.id} value={m.id}>{m.material_name} ({m.category_name})</option>
-              ))}
-            </select>
+
+            <div className="relative">
+              <input
+                type="text"
+                className="w-full border p-2 rounded bg-yellow-50"
+                placeholder="-- Pilih Jenis Biji Plastik --"
+                value={searchMaterialTerm}
+                onChange={handleMaterialSearch}
+                onFocus={() => {
+                  if (searchMaterialTerm) setShowSuggestions(true);
+                }}
+                required
+              />
+              {showSuggestions && (
+                <div 
+                  ref={suggestionsRef}
+                  className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl mt-1 shadow-lg max-h-60 overflow-y-auto"
+                >
+                  {filteredMaterials.length > 0 ? (
+                    filteredMaterials.map((m: any) => (
+                      <div
+                        key={m.id}
+                        className="p-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        onClick={() => selectMaterial(m)}
+                      >
+                        <div className="font-bold">{m.material_name}</div>
+                        <div className="text-sm text-gray-500">{m.Category_name}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-3 text-gray-500">Material tidak ditemukan</div>
+                  )}
+                </div>
+              )}
+            </div>
 
             <div className="grid grid-cols-3 gap-2 bg-gray-50 p-3 rounded">
               <div>
