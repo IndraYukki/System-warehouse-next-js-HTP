@@ -100,20 +100,33 @@ export default function MaterialInventory() {
         </div>
       </div>
 
-      {/* Kontrol Pagination */}
+      {/* Kontrol Pagination dan Export */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Tampilkan:</span>
-          <select
-            value={itemsPerPage}
-            onChange={handleItemsPerPageChange}
-            className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => {
+              // Buka URL export tanpa parameter pencarian atau pagination
+              const url = '/api/material/export';
+              window.open(url, '_blank');
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
           >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-          </select>
+            Export CSV
+          </button>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Tampilkan:</span>
+            <select
+              value={itemsPerPage}
+              onChange={handleItemsPerPageChange}
+              className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -151,9 +164,9 @@ export default function MaterialInventory() {
               <th className="p-4 border-r">Kategori</th>
               <th className="p-4 border-r text-center">Lokasi</th>
               <th className="p-4 border-r text-center">Customer</th>
-              <th className="p-4 text-right bg-blue-50/30">ORI (kg)</th>
-              <th className="p-4 text-right bg-orange-50/30">SCRAP (kg)</th>
-              <th className="p-4 text-right bg-gray-50">TOTAL (kg)</th>
+              <th className="p-4 text-right bg-blue-50/30">ORI (g/kg)</th>
+              <th className="p-4 text-right bg-orange-50/30">SCRAP (g/kg)</th>
+              <th className="p-4 text-right bg-gray-50">TOTAL (g/kg)</th>
 
             </tr>
           </thead>
@@ -177,16 +190,19 @@ export default function MaterialInventory() {
                       {m.customer_name || '-'}
                     </span>
                   </td>
-                  <td className="p-4 text-right font-mono text-blue-700">
-                    {Number(m.stock_ori_kg).toFixed(3)} kg
+                  <td className="p-4 text-right font-mono text-blue-700 bg-blue-50/30">
+                    <div>{(Number(m.stock_ori_kg) * 1000).toLocaleString('id-ID')} g</div>
+                    <div className="text-sm">{Number(m.stock_ori_kg).toFixed(3)} kg</div>
                   </td>
 
-                  <td className="p-4 text-right font-mono text-orange-700">
-                    {Number(m.stock_scrap_kg).toFixed(3)} kg
+                  <td className="p-4 text-right font-mono text-orange-700 bg-orange-50/30">
+                    <div>{(Number(m.stock_scrap_kg) * 1000).toLocaleString('id-ID')} g</div>
+                    <div className="text-sm">{Number(m.stock_scrap_kg).toFixed(3)} kg</div>
                   </td>
 
-                  <td className="p-4 text-right font-mono font-bold text-gray-800">
-                    {(Number(m.stock_ori_kg) + Number(m.stock_scrap_kg)).toFixed(3)} kg
+                  <td className="p-4 text-right font-mono font-bold text-gray-800 bg-gray-50">
+                    <div>{((Number(m.stock_ori_kg) + Number(m.stock_scrap_kg)) * 1000).toLocaleString('id-ID')} g</div>
+                    <div className="text-sm">{(Number(m.stock_ori_kg) + Number(m.stock_scrap_kg)).toFixed(3)} kg</div>
                   </td>
 
                 </tr>

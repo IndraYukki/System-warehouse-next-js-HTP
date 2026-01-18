@@ -114,9 +114,9 @@ export async function GET(request: Request) {
       'Material & Kategori',
       'Status Material',
       'Qty (Pcs)',
-      'Trans (g/kg)',
-      'Awal (g/kg)',
-      'Akhir (g/kg)',
+      'Trans (gram)',
+      'Awal (gram)',
+      'Akhir (gram)',
       'Waktu'
     ].join(DELIMITER);
 
@@ -134,10 +134,6 @@ export async function GET(request: Request) {
 
       const materialKategori = `${row.material_name} / ${row.category_name || '-'}`;
 
-      const transDetail = `${transGram.toLocaleString('id-ID', { useGrouping: true })} g / ${Number(row.quantity || 0).toFixed(3)} kg`;
-      const awalDetail = `${initialGram.toLocaleString('id-ID', { useGrouping: true })} g / ${Number(row.stock_initial || 0).toFixed(3)} kg`;
-      const akhirDetail = `${finalGram.toLocaleString('id-ID', { useGrouping: true })} g / ${Number(row.stock_final || 0).toFixed(3)} kg`;
-
       const values = [
         row.customer_name || '-', // Customer
         row.po_number || '-', // No. PO / Ref
@@ -147,11 +143,11 @@ export async function GET(request: Request) {
         materialKategori, // Material & Kategori
         row.material_status, // Status Material
         row.qty_pcs || '-', // Qty (Pcs)
-        transDetail, // Trans (g/kg)
-        awalDetail, // Awal (g/kg)
-        akhirDetail, // Akhir (g/kg)
+        transGram.toLocaleString('id-ID', { useGrouping: true }), // Trans (gram) - hanya nilai gram
+        initialGram.toLocaleString('id-ID', { useGrouping: true }), // Awal (gram) - hanya nilai gram
+        finalGram.toLocaleString('id-ID', { useGrouping: true }), // Akhir (gram) - hanya nilai gram
         new Date(row.created_at).toLocaleString('id-ID') // Waktu
-      ].map(value => String(value).replace(/"/g, '""')); // Escape quotes only, no semicolon replacement needed now
+      ].map(value => String(value).replace(/"/g, '""')); // Escape quotes only
 
       return values.join(DELIMITER);
     });

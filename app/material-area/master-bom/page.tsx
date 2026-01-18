@@ -177,20 +177,33 @@ export default function MasterBOM() {
         </div>
       </div>
 
-      {/* Kontrol Pagination */}
+      {/* Kontrol Pagination dan Export */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Tampilkan:</span>
-          <select
-            value={itemsPerPage}
-            onChange={handleItemsPerPageChange}
-            className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => {
+              // Buka URL export tanpa parameter pencarian atau pagination
+              const url = '/api/material-bom/export';
+              window.open(url, '_blank');
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
           >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-          </select>
+            Export CSV
+          </button>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Tampilkan:</span>
+            <select
+              value={itemsPerPage}
+              onChange={handleItemsPerPageChange}
+              className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
