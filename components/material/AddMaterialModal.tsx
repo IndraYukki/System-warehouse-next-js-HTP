@@ -30,7 +30,7 @@ export default function AddMaterialModal({ isOpen, onClose, onRefresh }: any) {
         <h2 className="text-xl font-bold mb-4 text-emerald-700">Tambah Master Biji Plastik</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700">Nama Material</label>
+            <label className="text-sm font-medium text-gray-700">Grade Material</label>
             <input 
               type="text" 
               placeholder="Contoh: ABS LG HI-121" 
@@ -42,7 +42,7 @@ export default function AddMaterialModal({ isOpen, onClose, onRefresh }: any) {
           </div>
           
           <div>
-            <label className="text-sm font-medium text-gray-700">Kategori / Grade</label>
+            <label className="text-sm font-medium text-gray-700">Kategori / Jenis</label>
             <input 
               type="text" 
               placeholder="Contoh: ABS / PP / NYLON" 

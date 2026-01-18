@@ -16,7 +16,15 @@ export default function MaterialInbound() {
   useEffect(() => {
     fetch('/api/material')
       .then(res => res.json())
-      .then(setMaterials);
+      .then(data => {
+        // Jika API mengembalikan format dengan data dan total (pagination), gunakan data.data
+        // Jika API mengembalikan array langsung, gunakan data langsung
+        if (data.data && Array.isArray(data.data)) {
+          setMaterials(data.data);
+        } else {
+          setMaterials(data);
+        }
+      });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

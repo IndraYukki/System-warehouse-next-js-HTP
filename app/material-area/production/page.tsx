@@ -17,7 +17,15 @@ export default function ProductionOutbound() {
   useEffect(() => {
     fetch("/api/material-bom")
       .then(res => res.json())
-      .then(setBoms);
+      .then(data => {
+        // Jika API mengembalikan format dengan data dan total (pagination), gunakan data.data
+        // Jika API mengembalikan array langsung, gunakan data langsung
+        if (data.data && Array.isArray(data.data)) {
+          setBoms(data.data);
+        } else {
+          setBoms(data);
+        }
+      });
   }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

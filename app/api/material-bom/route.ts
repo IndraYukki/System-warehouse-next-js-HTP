@@ -1,14 +1,34 @@
 import { getPool } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const searchTerm = searchParams.get('search');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const offset = parseInt(searchParams.get('offset') || '0');
+
+    // Validasi limit dan offset untuk mencegah SQL injection
+    if (isNaN(limit) || isNaN(offset) || limit < 1 || offset < 0) {
+      return NextResponse.json({ error: "Invalid limit or offset parameters" }, { status: 400 });
+    }
+
     const pool = getPool();
-    const query = `
+
+    // Query untuk menghitung total data
+    let countQuery = `
+      SELECT COUNT(*) as total
+      FROM material_bom mb
+      JOIN materials m ON mb.material_id = m.id
+    `;
+
+    // Query untuk mengambil data
+    let query = `
       SELECT
       mb.id,
       mb.part_no,
       mb.product_name,
+      mb.product_color,
       mb.weight_part,
       mb.weight_runner,
       mb.cavity,
@@ -18,11 +38,60 @@ export async function GET() {
       m.stock_scrap_kg
     FROM material_bom mb
     JOIN materials m ON mb.material_id = m.id
-    ORDER BY mb.part_no
-
     `;
-    const [rows] = await pool.execute(query);
-    return NextResponse.json(rows);
+
+    // Tambahkan kondisi pencarian jika searchTerm ada
+    if (searchTerm) {
+      const searchCondition = `
+        WHERE (
+          mb.part_no LIKE ? OR
+          mb.product_name LIKE ? OR
+          m.material_name LIKE ? OR
+          m.category_name LIKE ?
+        )
+      `;
+      countQuery += searchCondition;
+      query += searchCondition;
+    }
+
+    // Tambahkan ORDER BY ke query utama
+    query += ` ORDER BY mb.part_no`;
+
+    // Tambahkan LIMIT dan OFFSET ke query data
+    const paginatedQuery = `${query} LIMIT ${limit} OFFSET ${offset}`;
+
+    if (searchTerm) {
+      const searchPattern = `%${searchTerm}%`;
+      const searchParams = [searchPattern, searchPattern, searchPattern, searchPattern];
+
+      // Eksekusi query count
+      const [countResult]: any = await pool.execute(countQuery, searchParams);
+      const total = countResult[0].total;
+
+      // Eksekusi query data dengan LIMIT dan OFFSET
+      const [rows] = await pool.execute(paginatedQuery, searchParams);
+
+      return NextResponse.json({
+        data: rows,
+        total: total,
+        limit: limit,
+        offset: offset
+      });
+    } else {
+      // Eksekusi query count tanpa parameter pencarian
+      const [countResult]: any = await pool.execute(countQuery);
+      const total = countResult[0].total;
+
+      // Eksekusi query data dengan LIMIT dan OFFSET
+      const [rows] = await pool.execute(paginatedQuery);
+
+      return NextResponse.json({
+        data: rows,
+        total: total,
+        limit: limit,
+        offset: offset
+      });
+    }
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
