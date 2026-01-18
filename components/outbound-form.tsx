@@ -206,7 +206,15 @@ export function OutboundForm({ onSuccess }: OutboundFormProps) {
             </div>
           )}
 
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button type="submit" disabled={loading} className="
+                w-full
+                bg-blue-600
+                hover:bg-blue-700
+                text-white
+                font-semibold
+                shadow
+                transition
+              ">
             {loading ? "Memproses..." : "Keluarkan Barang"}
           </Button>
         </form>

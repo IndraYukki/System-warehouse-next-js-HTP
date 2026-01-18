@@ -160,7 +160,14 @@ export function ProductTable() {
           </CardTitle>
           <CardDescription>Daftar semua produk yang terdaftar dalam sistem</CardDescription>
         </div>
-        <Button onClick={handleAddNew} className="flex items-center gap-2">
+        <Button onClick={handleAddNew} className="
+                bg-blue-600
+                hover:bg-blue-700
+                text-white
+                font-semibold
+                shadow
+                transition
+              ">
           <Plus className="h-4 w-4" />
           Tambah Produk
         </Button>

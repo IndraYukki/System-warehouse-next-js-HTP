@@ -214,7 +214,15 @@ export function ProductForm({ onSuccess, initialData }: ProductFormProps) {
             </div>
           )}
 
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button type="submit" disabled={loading} className="
+                w-full
+                bg-blue-600
+                hover:bg-blue-700
+                text-white
+                font-semibold
+                shadow
+                transition
+              ">
             {loading ? "Memproses..." : isEdit ? "Update Produk" : "Tambah Produk"}
           </Button>
         </form>

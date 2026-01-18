@@ -247,9 +247,21 @@ export function InboundForm({ onSuccess }: InboundFormProps) {
             </div>
           )}
 
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Memproses..." : "Tambah Barang"}
-          </Button>
+          <Button
+              type="submit"
+              disabled={loading}
+              className="
+                w-full
+                bg-blue-600
+                hover:bg-blue-700
+                text-white
+                font-semibold
+                shadow
+                transition
+              ">
+              {loading ? "Memproses..." : "Tambah Barang"}
+            </Button>
+
         </form>
       </CardContent>
     </Card>
