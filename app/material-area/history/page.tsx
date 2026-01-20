@@ -282,22 +282,22 @@ export default function DetailedHistory() {
 
                   <td className="p-3 border-r text-center font-bold">{log.qty_pcs || '-'}</td>
 
-                  {/* Gabungan Transaksi (Gram & Kg) */}
+                  {/* Gabungan Transaksi (Kg & Gram) */}
                   <td className="p-3 border-r text-right font-semibold text-blue-700 bg-blue-50/30">
-                    <div>{transGram.toLocaleString('id-ID')} g</div>
-                    <div className="text-sm">{Number(log.quantity).toFixed(3)} kg</div>
+                    <div>{Number(log.quantity).toFixed(Number(log.quantity) % 1 !== 0 ? 3 : 0).replace('.', ',')} kg</div>
+                    <div className="text-sm">{transGram.toLocaleString('id-ID')} g</div>
                   </td>
 
-                  {/* Gabungan Saldo Awal (Gram & Kg) */}
+                  {/* Gabungan Saldo Awal (Kg & Gram) */}
                   <td className="p-3 border-r text-right text-gray-500 bg-gray-50/30">
-                    <div>{initialGram.toLocaleString('id-ID')} g</div>
-                    <div className="text-sm">{Number(log.stock_initial).toFixed(3)} kg</div>
+                    <div>{Number(log.stock_initial).toFixed(Number(log.stock_initial) % 1 !== 0 ? 3 : 0).replace('.', ',')} kg</div>
+                    <div className="text-sm">{initialGram.toLocaleString('id-ID')} g</div>
                   </td>
 
-                  {/* Gabungan Saldo Akhir (Gram & Kg) */}
+                  {/* Gabungan Saldo Akhir (Kg & Gram) */}
                   <td className="p-3 border-r text-right font-bold text-emerald-700 bg-green-50/30">
-                    <div>{finalGram.toLocaleString('id-ID')} g</div>
-                    <div className="text-sm">{Number(log.stock_final).toFixed(3)} kg</div>
+                    <div>{Number(log.stock_final).toFixed(Number(log.stock_final) % 1 !== 0 ? 3 : 0).replace('.', ',')} kg</div>
+                    <div className="text-sm">{finalGram.toLocaleString('id-ID')} g</div>
                   </td>
                   <td className="p-3 border-r whitespace-nowrap">
                     {new Date(log.created_at).toLocaleString('id-ID')}

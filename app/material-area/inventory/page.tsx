@@ -191,18 +191,18 @@ export default function MaterialInventory() {
                     </span>
                   </td>
                   <td className="p-4 text-right font-mono text-blue-700 bg-blue-50/30">
-                    <div>{(Number(m.stock_ori_kg) * 1000).toLocaleString('id-ID')} g</div>
-                    <div className="text-sm">{Number(m.stock_ori_kg).toFixed(3)} kg</div>
+                    <div>{Number(m.stock_ori_kg).toFixed(Number(m.stock_ori_kg) % 1 !== 0 ? 3 : 0).replace('.', ',')} kg</div>
+                    <div className="text-sm">{(Number(m.stock_ori_kg) * 1000).toLocaleString('id-ID')} g</div>
                   </td>
 
                   <td className="p-4 text-right font-mono text-orange-700 bg-orange-50/30">
-                    <div>{(Number(m.stock_scrap_kg) * 1000).toLocaleString('id-ID')} g</div>
-                    <div className="text-sm">{Number(m.stock_scrap_kg).toFixed(3)} kg</div>
+                    <div>{Number(m.stock_scrap_kg).toFixed(Number(m.stock_scrap_kg) % 1 !== 0 ? 3 : 0).replace('.', ',')} kg</div>
+                    <div className="text-sm">{(Number(m.stock_scrap_kg) * 1000).toLocaleString('id-ID')} g</div>
                   </td>
 
                   <td className="p-4 text-right font-mono font-bold text-gray-800 bg-gray-50">
-                    <div>{((Number(m.stock_ori_kg) + Number(m.stock_scrap_kg)) * 1000).toLocaleString('id-ID')} g</div>
-                    <div className="text-sm">{(Number(m.stock_ori_kg) + Number(m.stock_scrap_kg)).toFixed(3)} kg</div>
+                    <div>{(Number(m.stock_ori_kg) + Number(m.stock_scrap_kg)).toFixed((Number(m.stock_ori_kg) + Number(m.stock_scrap_kg)) % 1 !== 0 ? 3 : 0).replace('.', ',')} kg</div>
+                    <div className="text-sm">{((Number(m.stock_ori_kg) + Number(m.stock_scrap_kg)) * 1000).toLocaleString('id-ID')} g</div>
                   </td>
 
                 </tr>
