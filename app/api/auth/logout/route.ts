@@ -3,36 +3,23 @@ import { cookies } from "next/headers";
 
 export async function POST() {
   try {
-    // Hapus cookie login
     const response = NextResponse.json({
       success: true,
-      message: "Logout berhasil"
+      message: "Logout berhasil",
     });
 
-    // Hapus cookie 'isLoggedIn', 'userId', dan 'userRole'
-    response.cookies.set('isLoggedIn', 'false', {
+    // 🔥 HARUS SAMA PERSIS DENGAN LOGIN
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 0, // Expire cookie
-      path: '/',
-      sameSite: 'strict',
-    });
+      secure: false,     // ⬅️ SAMA
+      sameSite: "lax" as const,
+      path: "/",
+      maxAge: 0,         // ⬅️ HAPUS COOKIE
+    };
 
-    response.cookies.set('userId', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 0, // Expire cookie
-      path: '/',
-      sameSite: 'strict',
-    });
-
-    response.cookies.set('userRole', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 0, // Expire cookie
-      path: '/',
-      sameSite: 'strict',
-    });
+    response.cookies.set("isLoggedIn", "", cookieOptions);
+    response.cookies.set("userId", "", cookieOptions);
+    response.cookies.set("userRole", "", cookieOptions);
 
     return response;
   } catch (error) {

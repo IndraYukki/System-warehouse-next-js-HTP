@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
     const pool = getPool();
 
-    // Cek user di database
+    // Ambil user dari database
     const [rows] = await pool.query(
       "SELECT id, username, password, nama_panggilan, role, email, nomor_telepon FROM users WHERE username = ?",
       [username]
@@ -31,9 +31,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const user = users[0];
+    const user: any = users[0];
 
-    // Cocokkan password (dalam implementasi asli, Anda sebaiknya menggunakan hashing)
+    // Cocokkan password (belum hashing)
     if (user.password !== password) {
       return NextResponse.json(
         { error: "Username atau password salah" },
@@ -41,7 +41,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Set cookie untuk menandai bahwa pengguna sudah login
     const response = NextResponse.json({
       success: true,
       message: "Login berhasil",
@@ -51,35 +50,22 @@ export async function POST(request: Request) {
         nama_panggilan: user.nama_panggilan,
         role: user.role,
         email: user.email,
-        nomor_telepon: user.nomor_telepon
-      }
+        nomor_telepon: user.nomor_telepon,
+      },
     });
 
-    // Set cookie 'isLoggedIn' ke 'true' dan tambahkan userId
-    response.cookies.set('isLoggedIn', 'true', {
+    // 🔥 OPTIONS COOKIE (MODE LAN / KANTOR)
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24, // 24 jam
-      path: '/',
-      sameSite: 'strict',
-    });
+      secure: false,     // ⬅️ PENTING
+      sameSite: "lax" as const,
+      path: "/",
+      maxAge: 60 * 60 * 24, // 1 hari
+    };
 
-    response.cookies.set('userId', user.id.toString(), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24, // 24 jam
-      path: '/',
-      sameSite: 'strict',
-    });
-
-    // Set cookie untuk menyimpan role pengguna
-    response.cookies.set('userRole', user.role, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24, // 24 jam
-      path: '/',
-      sameSite: 'strict',
-    });
+    response.cookies.set("isLoggedIn", "true", cookieOptions);
+    response.cookies.set("userId", user.id.toString(), cookieOptions);
+    response.cookies.set("userRole", user.role, cookieOptions);
 
     return response;
   } catch (error) {

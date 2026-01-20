@@ -25,8 +25,8 @@ export async function GET(request: Request) {
     const [rows]: any = await pool.query(query);
 
     // Konversi data ke format CSV
-    const DELIMITER = ';';
-    
+    const DELIMITER = ',';
+
     if (rows.length === 0) {
       // Jika tidak ada data, kembalikan CSV kosong dengan header
       const csvHeader = [
@@ -40,13 +40,14 @@ export async function GET(request: Request) {
       ].join(DELIMITER);
 
       const csvContent = csvHeader;
-      
+
       const headers = new Headers();
       headers.set('Content-Type', 'text/csv; charset=utf-8');
       headers.set('Content-Disposition', 'attachment; filename="material-inventory.csv"');
-      
+
       const BOM = '\uFEFF';
-      return new NextResponse(BOM + csvContent, {
+      const sepLine = 'sep=,\n'; // Baris untuk memberi tahu Excel bahwa pemisah kolom adalah koma
+      return new NextResponse(BOM + sepLine + csvContent, {
         headers,
       });
     }
@@ -77,19 +78,26 @@ export async function GET(request: Request) {
         oriGram.toLocaleString('id-ID', { useGrouping: true }), // ORI (gram)
         scrapGram.toLocaleString('id-ID', { useGrouping: true }), // SCRAP (gram)
         totalGram.toLocaleString('id-ID', { useGrouping: true }) // TOTAL (gram)
-      ].map(value => String(value).replace(/"/g, '""')); // Escape quotes
-      
+      ].map(value => {
+        // Escape quotes dan wrap value in quotes if it contains commas, quotes, or newlines
+        if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+          return `"${value.replace(/"/g, '""')}"`;
+        }
+        return value;
+      });
+
       return values.join(DELIMITER);
     });
 
     const csvContent = [csvHeader, ...csvRows].join('\n');
-    
+
     const headers = new Headers();
     headers.set('Content-Type', 'text/csv; charset=utf-8');
     headers.set('Content-Disposition', 'attachment; filename="material-inventory.csv"');
-    
+
     const BOM = '\uFEFF';
-    return new NextResponse(BOM + csvContent, {
+    const sepLine = 'sep=,\n'; // Baris untuk memberi tahu Excel bahwa pemisah kolom adalah koma
+    return new NextResponse(BOM + sepLine + csvContent, {
       headers,
     });
   } catch (err: any) {
