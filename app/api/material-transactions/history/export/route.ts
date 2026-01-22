@@ -73,7 +73,7 @@ export async function GET(request: Request) {
     const [rows]: any = await pool.query(query, baseParams);
 
     // Konversi data ke format CSV
-    const DELIMITER = ';';
+    const DELIMITER = ',';
 
     if (rows.length === 0) {
       // Jika tidak ada data, kembalikan CSV kosong dengan header
@@ -99,7 +99,8 @@ export async function GET(request: Request) {
       headers.set('Content-Disposition', 'attachment; filename="material-history.csv"');
 
       const BOM = '\uFEFF';
-      return new NextResponse(BOM + csvContent, {
+      const sepLine = 'sep=,\n'; // Baris untuk memberi tahu Excel bahwa pemisah kolom adalah koma
+      return new NextResponse(BOM + sepLine + csvContent, {
         headers,
       });
     }
@@ -147,7 +148,13 @@ export async function GET(request: Request) {
         initialGram.toLocaleString('id-ID', { useGrouping: true }), // Awal (gram) - hanya nilai gram
         finalGram.toLocaleString('id-ID', { useGrouping: true }), // Akhir (gram) - hanya nilai gram
         new Date(row.created_at).toLocaleString('id-ID') // Waktu
-      ].map(value => String(value).replace(/"/g, '""')); // Escape quotes only
+      ].map(value => {
+        // Escape quotes dan wrap value in quotes if it contains commas, quotes, or newlines
+        if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+          return `"${value.replace(/"/g, '""')}"`;
+        }
+        return value;
+      });
 
       return values.join(DELIMITER);
     });
@@ -159,7 +166,8 @@ export async function GET(request: Request) {
     headers.set('Content-Disposition', 'attachment; filename="material-history.csv"');
 
     const BOM = '\uFEFF';
-    return new NextResponse(BOM + csvContent, {
+    const sepLine = 'sep=,\n'; // Baris untuk memberi tahu Excel bahwa pemisah kolom adalah koma
+    return new NextResponse(BOM + sepLine + csvContent, {
       headers,
     });
   } catch (err: any) {

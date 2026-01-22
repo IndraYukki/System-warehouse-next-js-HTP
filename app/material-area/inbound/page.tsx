@@ -2,13 +2,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 export default function MaterialInbound() {
-  const [materials, setMaterials] = useState([]);
+  const [materials, setMaterials] = useState([]); // Still keep this for potential use
   const [filteredMaterials, setFilteredMaterials] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const suggestionsRef = useRef<HTMLDivElement>(null);
-  
+
   const [form, setForm] = useState({
   material_id: "",
   material_status: "ORI", // default aman
@@ -17,37 +17,30 @@ export default function MaterialInbound() {
   po_number: ""
 });
 
-  useEffect(() => {
-    fetch('/api/material')
-      .then(res => res.json())
-      .then(data => {
-        // Jika API mengembalikan format dengan data dan total (pagination), gunakan data.data
-        // Jika API mengembalikan array langsung, gunakan data langsung
-        if (data.data && Array.isArray(data.data)) {
-          setMaterials(data.data);
-          setFilteredMaterials(data.data);
-        } else {
-          setMaterials(data);
-          setFilteredMaterials(data);
-        }
-      });
-  }, []);
-
-  // Fungsi untuk menangani pencarian material
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Fungsi untuk menangani pencarian material langsung ke server
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
-    
+
     if (term.trim() === "") {
-      setFilteredMaterials(materials);
+      setFilteredMaterials([]);
       setShowSuggestions(false);
     } else {
-      const filtered = materials.filter((material: any) =>
-        material.material_name.toLowerCase().includes(term.toLowerCase()) ||
-        material.category_name.toLowerCase().includes(term.toLowerCase())
-      );
-      setFilteredMaterials(filtered);
-      setShowSuggestions(true);
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/material?search=${encodeURIComponent(term)}`);
+        const data = await response.json();
+
+        // Handle both paginated and non-paginated responses
+        const materialsData = data.data && Array.isArray(data.data) ? data.data : data;
+        setFilteredMaterials(materialsData);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error("Error fetching materials:", error);
+        setFilteredMaterials([]);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

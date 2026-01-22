@@ -28,7 +28,7 @@ export default function MaterialInventory() {
       const params = new URLSearchParams();
 
       if (searchTerm) {
-        params.append('search', encodeURIComponent(searchTerm));
+        params.append('search', searchTerm);
       }
       params.append('limit', itemsPerPage.toString());
       params.append('offset', (currentPage * itemsPerPage).toString());

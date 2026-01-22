@@ -65,6 +65,9 @@ export default function MasterBOM() {
   }, [searchTerm, currentPage, itemsPerPage]);
 
   // Update filteredMaterials ketika materials berubah
+  // State untuk menyimpan hasil pencarian material
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+
   useEffect(() => {
     setFilteredMaterials(materials);
   }, [materials]);
@@ -74,7 +77,7 @@ export default function MasterBOM() {
     const params = new URLSearchParams();
 
     if (searchTerm) {
-      params.append('search', encodeURIComponent(searchTerm));
+      params.append('search', searchTerm);
     }
     params.append('limit', itemsPerPage.toString());
     params.append('offset', (currentPage * itemsPerPage).toString());
@@ -108,8 +111,8 @@ export default function MasterBOM() {
     });
   };
 
-  // Fungsi untuk menangani pencarian material
-  const handleMaterialSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Fungsi untuk menangani pencarian material langsung ke server
+  const handleMaterialSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchMaterialTerm(term);
 
@@ -117,12 +120,20 @@ export default function MasterBOM() {
       setFilteredMaterials(materials);
       setShowSuggestions(false);
     } else {
-      const filtered = materials.filter((material: any) =>
-        material.material_name.toLowerCase().includes(term.toLowerCase()) ||
-        material.category_name.toLowerCase().includes(term.toLowerCase())
-      );
-      setFilteredMaterials(filtered);
-      setShowSuggestions(true);
+      try {
+        // Lakukan pencarian langsung ke server
+        const response = await fetch(`/api/material?search=${encodeURIComponent(term)}`);
+        const data = await response.json();
+
+        // Handle both paginated and non-paginated responses
+        const materialData = data.data && Array.isArray(data.data) ? data.data : data;
+        setSearchResults(materialData);
+        setFilteredMaterials(materialData); // Update filteredMaterials with server results
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error("Error fetching materials:", error);
+        setFilteredMaterials([]);
+      }
     }
   };
 
@@ -309,7 +320,7 @@ export default function MasterBOM() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button onClick={() => setIsModalOpen(true)} className="bg-emerald-600 text-white px-4 py-2 rounded">
+          <button onClick={() => setIsModalOpen(true)} className="bg-emerald-600 text-white px-5 py-2 rounded-xl font-bold hover:bg-emerald-700 transition">
             + Tambah Produk
           </button>
         </div>
@@ -465,15 +476,15 @@ export default function MasterBOM() {
                   ref={suggestionsRef}
                   className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl mt-1 shadow-lg max-h-60 overflow-y-auto"
                 >
-                  {filteredMaterials.length > 0 ? (
-                    filteredMaterials.map((m: any) => (
+                  {(searchResults.length > 0 ? searchResults : filteredMaterials).length > 0 ? (
+                    (searchResults.length > 0 ? searchResults : filteredMaterials).map((m: any) => (
                       <div
                         key={m.id}
                         className="p-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                         onClick={() => selectMaterial(m)}
                       >
                         <div className="font-bold">{m.material_name}</div>
-                        <div className="text-sm text-gray-500">{m.Category_name}</div>
+                        <div className="text-sm text-gray-500">{m.category_name}</div>
                       </div>
                     ))
                   ) : (
@@ -549,8 +560,8 @@ export default function MasterBOM() {
                   ref={suggestionsRef}
                   className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl mt-1 shadow-lg max-h-60 overflow-y-auto"
                 >
-                  {filteredMaterials.length > 0 ? (
-                    filteredMaterials.map((m: any) => (
+                  {(searchResults.length > 0 ? searchResults : filteredMaterials).length > 0 ? (
+                    (searchResults.length > 0 ? searchResults : filteredMaterials).map((m: any) => (
                       <div
                         key={m.id}
                         className="p-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-b-0"

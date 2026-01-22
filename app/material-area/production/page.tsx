@@ -15,6 +15,10 @@ export default function ProductionOutbound() {
   const CUT_LOSS_PERCENT = 3;
   const [oriPercent, setOriPercent] = useState(100);
 
+  // State untuk menyimpan hasil pencarian part no
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+
+  // Ambil semua BOM saat komponen dimuat (untuk kebutuhan lain jika diperlukan)
   useEffect(() => {
     fetch("/api/material-bom")
       .then(res => res.json())
@@ -29,7 +33,7 @@ export default function ProductionOutbound() {
       });
   }, []);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
     setSelectedBom(null);
@@ -38,15 +42,31 @@ export default function ProductionOutbound() {
     // Tampilkan pesan validasi secara otomatis
     if (value.trim() === "") {
       setValidationMessage("");
+      setSearchResults([]);
     } else {
-      const foundBom = boms.find((bom: any) =>
-        bom.part_no.toLowerCase() === value.toLowerCase()
-      );
+      try {
+        // Lakukan pencarian langsung ke server
+        const response = await fetch(`/api/material-bom?search=${encodeURIComponent(value)}`);
+        const data = await response.json();
 
-      if (!foundBom) {
+        // Handle both paginated and non-paginated responses
+        const bomData = data.data && Array.isArray(data.data) ? data.data : data;
+        setSearchResults(bomData);
+
+        // Cek apakah part no yang diketik persis cocok dengan hasil pencarian
+        const foundBom = bomData.find((bom: any) =>
+          bom.part_no.toLowerCase() === value.toLowerCase()
+        );
+
+        if (!foundBom) {
+          setValidationMessage("masukan part no yang benar!");
+        } else {
+          setValidationMessage(foundBom.product_name);
+        }
+      } catch (error) {
+        console.error("Error fetching BOM data:", error);
+        setSearchResults([]);
         setValidationMessage("masukan part no yang benar!");
-      } else {
-        setValidationMessage(foundBom.product_name);
       }
     }
   };
@@ -147,13 +167,8 @@ export default function ProductionOutbound() {
               />
               {showSuggestions && searchTerm && !selectedBom && (
                 <div className="absolute z-10 w-full bg-white border rounded-xl mt-1 shadow">
-                  {boms
-                    .filter(b =>
-                      b.part_no
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase())
-                    )
-                    .map(item => (
+                  {searchResults.length > 0 ? (
+                    searchResults.map(item => (
                       <div
                         key={item.id}
                         className="p-3 hover:bg-blue-50 cursor-pointer"
@@ -164,7 +179,10 @@ export default function ProductionOutbound() {
                           {item.product_name}
                         </div>
                       </div>
-                    ))}
+                    ))
+                  ) : (
+                    <div className="p-3 text-gray-500">Part No tidak ditemukan</div>
+                  )}
                 </div>
               )}
             </div>

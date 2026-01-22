@@ -19,7 +19,7 @@ export default function MaterialInventory() {
       const params = new URLSearchParams();
 
       if (searchTerm) {
-        params.append('search', encodeURIComponent(searchTerm));
+        params.append('search', searchTerm);
       }
       params.append('limit', itemsPerPage.toString());
       params.append('offset', (currentPage * itemsPerPage).toString());
@@ -80,23 +80,15 @@ export default function MaterialInventory() {
           <h1 className="text-2xl font-bold text-gray-800 uppercase">Material Inventory</h1>
           <p className="text-sm text-gray-500">Stok biji plastik dan lokasi penyimpanan</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          <div className="relative w-full md:w-64">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Cari berdasarkan Nama Material atau Kategori..."
-              className="w-full pl-9 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-emerald-600 text-white px-5 py-2 rounded-xl font-bold hover:bg-emerald-700 transition"
-          >
-            + Tambah Material
-          </button>
+        <div className="relative w-full md:w-64">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Cari berdasarkan Nama Material atau Kategori..."
+            className="w-full pl-9 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </div>
 
