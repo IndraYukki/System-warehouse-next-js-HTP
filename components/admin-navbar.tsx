@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/components/hooks/useAuth"
 import { useState, useEffect, useRef } from "react"
-import { User, Home, BarChart3, LogOut, Package, FileText, TrendingUp, Edit, ChevronDown, Database,Truck } from "lucide-react"
+import { User, Home, BarChart3, LogOut, Package, FileText, TrendingUp, Edit, ChevronDown, Database, Truck, Worm } from "lucide-react"
 
 export function AdminNavbar() {
   const pathname = usePathname()

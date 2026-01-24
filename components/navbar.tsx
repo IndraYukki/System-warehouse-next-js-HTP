@@ -7,7 +7,7 @@ import { useAuth } from "@/components/hooks/useAuth"
 import { useState, useEffect, useRef } from "react"
 import { 
   User, BarChart3, LogOut, Home, Package, 
-  Truck, FileText, Database, ChevronDown, Activity, Layers, Archive, Boxes
+  Truck, FileText, Database, ChevronDown, Activity, Layers, Archive, Boxes, Worm, TrendingUpDown
 } from "lucide-react"
 
 export function Navbar() {
@@ -138,7 +138,7 @@ export function Navbar() {
                 <Link
                   href="/material-area/simulation" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
                   <div className="bg-emerald-100 p-2 rounded-lg mr-4">
-                    <Activity className="h-4 w-4 text-emerald-600" />
+                    <Worm className="h-4 w-4 text-emerald-600" />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-bold">Simulasi Material</span>
