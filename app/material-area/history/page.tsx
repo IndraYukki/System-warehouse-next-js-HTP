@@ -253,7 +253,7 @@ export default function DetailedHistory() {
 
                   {/* Kolom Part No hanya ditampilkan untuk transaksi OUT */}
                   <td className="p-3 border-r font-mono">
-                    {log.type === 'OUT' ? log.part_no || 'N/A' : '-'}
+                    {log.type === 'OUT' ? (log.part_no ?? '-') : '-'}
                   </td>
 
                   <td className="p-3 border-r text-center">
