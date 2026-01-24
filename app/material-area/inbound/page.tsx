@@ -193,13 +193,14 @@ export default function MaterialInbound() {
             </div>
           {/* Keterangan */}
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Keterangan / Supplier / No. PO</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Keterangan / Supplier / No. PO *</label>
             <textarea
               placeholder="Contoh: Masuk dari Supplier PT. Maju Jaya - No PO: 12345"
               className="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-emerald-500 outline-none transition"
               rows={3}
               value={form.description}
               onChange={e => setForm({...form, description: e.target.value})}
+              required
             ></textarea>
           </div>
 

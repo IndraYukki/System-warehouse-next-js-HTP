@@ -24,6 +24,7 @@ export async function GET(request: Request) {
         mt.qty_pcs,
         mt.stock_initial,
         mt.stock_final,
+        mt.description,
         mt.created_at,
 
         mb.part_no,
@@ -118,6 +119,7 @@ export async function GET(request: Request) {
       'Trans (gram)',
       'Awal (gram)',
       'Akhir (gram)',
+      'Deskripsi',
       'Waktu'
     ].join(DELIMITER);
 
@@ -147,6 +149,7 @@ export async function GET(request: Request) {
         transGram.toLocaleString('id-ID', { useGrouping: true }), // Trans (gram) - hanya nilai gram
         initialGram.toLocaleString('id-ID', { useGrouping: true }), // Awal (gram) - hanya nilai gram
         finalGram.toLocaleString('id-ID', { useGrouping: true }), // Akhir (gram) - hanya nilai gram
+        row.description || '-', // Deskripsi
         new Date(row.created_at).toLocaleString('id-ID') // Waktu
       ].map(value => {
         // Escape quotes dan wrap value in quotes if it contains commas, quotes, or newlines

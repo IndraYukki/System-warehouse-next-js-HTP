@@ -39,6 +39,7 @@ export async function GET(request: Request) {
         mt.qty_pcs,
         mt.stock_initial,
         mt.stock_final,
+        mt.description,
         mt.created_at,
 
         mb.part_no,
