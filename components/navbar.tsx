@@ -7,7 +7,7 @@ import { useAuth } from "@/components/hooks/useAuth"
 import { useState, useEffect, useRef } from "react"
 import { 
   User, BarChart3, LogOut, Home, Package, 
-  Truck, FileText, Database, ChevronDown, Activity, Layers, Archive, Boxes, Worm, TrendingUpDown
+  Truck, FileText, Database, ChevronDown, Activity, Layers, Archive, Boxes, Worm, TrendingUpDown, PackageOpen, PackageMinus, ReceiptText, FileClock
 } from "lucide-react"
 
 export function Navbar() {
@@ -97,7 +97,7 @@ export function Navbar() {
                 </Link>
                 <div className="border-t mx-4 my-2"></div>
                 <Link href="/history" className="flex items-center px-5 py-3 hover:bg-gray-50 text-gray-700 transition" onClick={() => setShowFGMenu(false)}>
-                  <div className="bg-gray-100 p-2 rounded-lg mr-4"><FileText className="h-4 w-4 text-gray-500" /></div>
+                  <div className="bg-gray-100 p-2 rounded-lg mr-4"><FileClock className="h-4 w-4 text-gray-500" /></div>
                   <span className="text-sm font-bold">FG History Logs</span>
                 </Link>
               </div>
@@ -120,11 +120,11 @@ export function Navbar() {
               <div className="absolute left-0 mt-2 w-64 bg-white/95 backdrop-blur-0 border border-slate-200 rounded-2xl shadow-2xl z-50 py-3 animate-in fade-in slide-in-from-top-2">
                 <p className="px-5 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Biji Plastik</p>
                 <Link href="/material-area/inventory" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
-                  <div className="bg-emerald-100 p-2 rounded-lg mr-4"><Package className="h-4 w-4 text-emerald-600" /></div>
+                  <div className="bg-emerald-100 p-2 rounded-lg mr-4"><PackageOpen className="h-4 w-4 text-emerald-600" /></div>
                   <div className="flex flex-col"><span className="text-sm font-bold">Material Stok</span><span className="text-[10px] text-gray-400">Saldo & Rak</span></div>
                 </Link>
                 <Link href="/material-area/master-bom" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
-                  <div className="bg-emerald-100 p-2 rounded-lg mr-4"><Package className="h-4 w-4 text-emerald-600" /></div>
+                  <div className="bg-emerald-100 p-2 rounded-lg mr-4"><ReceiptText className="h-4 w-4 text-emerald-600" /></div>
                   <div className="flex flex-col"><span className="text-sm font-bold">BOM produk</span><span className="text-[10px] text-gray-400">Racikan Gramasi</span></div>
                 </Link>
                 <Link href="/material-area/inbound" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
@@ -132,7 +132,7 @@ export function Navbar() {
                   <div className="flex flex-col"><span className="text-sm font-bold">Inbound</span><span className="text-[10px] text-gray-400">Input Barang Datang</span></div>
                 </Link>
                 <Link href="/material-area/production" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
-                  <div className="bg-emerald-100 p-2 rounded-lg mr-4"><Activity className="h-4 w-4 text-emerald-600" /></div>
+                  <div className="bg-emerald-100 p-2 rounded-lg mr-4"><PackageMinus className="h-4 w-4 text-emerald-600" /></div>
                   <div className="flex flex-col"><span className="text-sm font-bold">Produksi (Out)</span><span className="text-[10px] text-gray-400">Potong Stok via BOM</span></div>
                 </Link>
                 <Link
@@ -149,7 +149,7 @@ export function Navbar() {
                 </Link>
                 <div className="border-t mx-4 my-2"></div>
                 <Link href="/material-area/history" className="flex items-center px-5 py-3 hover:bg-gray-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
-                  <div className="bg-gray-100 p-2 rounded-lg mr-4"><FileText className="h-4 w-4 text-gray-500" /></div>
+                  <div className="bg-gray-100 p-2 rounded-lg mr-4"><FileClock className="h-4 w-4 text-gray-500" /></div>
                   <span className="text-sm font-bold">Material History</span>
                 </Link>
               </div>
