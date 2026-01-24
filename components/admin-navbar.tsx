@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/components/hooks/useAuth"
 import { useState, useEffect, useRef } from "react"
-import { User, Home, BarChart3, LogOut, Package, FileText, TrendingUp, Edit, ChevronDown, Database } from "lucide-react"
+import { User, Home, BarChart3, LogOut, Package, FileText, TrendingUp, Edit, ChevronDown, Database,Truck } from "lucide-react"
 
 export function AdminNavbar() {
   const pathname = usePathname()
@@ -186,6 +186,11 @@ export function AdminNavbar() {
                 <Link href="/admin/admin-material/edit-material-inventory" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
                   <div className="bg-emerald-100 p-2 rounded-lg mr-4"><Edit className="h-4 w-4 text-emerald-600" /></div>
                   <div className="flex flex-col"><span className="text-sm font-bold">Edit Inventory</span><span className="text-[10px] text-gray-400">Kelola Inventaris Material</span></div>
+                </Link>
+
+                <Link href="/admin/admin-material/material-shipping" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
+                  <div className="bg-emerald-100 p-2 rounded-lg mr-4"><Truck className="h-4 w-4 text-emerald-600" /></div>
+                  <div className="flex flex-col"><span className="text-sm font-bold">Material Shipping</span><span className="text-[10px] text-gray-400">Pengiriman Material Mentah</span></div>
                 </Link>
               </div>
             )}

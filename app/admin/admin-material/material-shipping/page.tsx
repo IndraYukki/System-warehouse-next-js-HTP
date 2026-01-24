@@ -106,7 +106,7 @@ export default function MaterialInbound() {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="bg-emerald-600 p-6">
           <h1 className="text-2xl font-bold text-white">Material Shipping</h1>
-          <p className="text-emerald-100 italic text-sm">kirim material</p>
+          <p className="text-emerald-100 italic text-sm">Pengembalian material ke vendor / Handover Material</p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
@@ -219,7 +219,7 @@ export default function MaterialInbound() {
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Keterangan / Surat jalan / Tujuan Shipping / Nama PT Tujuan *</label>
             <textarea
-              placeholder="Contoh: Masuk dari Supplier PT. Maju Jaya - No PO: 12345"
+              placeholder="Contoh: Pengirima Shipping PT. Maju Jaya - No PO: 12345"
               className="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-emerald-500 outline-none transition"
               rows={3}
               value={form.description}
@@ -234,7 +234,7 @@ export default function MaterialInbound() {
               disabled={loading}
               className={`bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-emerald-700 transition flex items-center gap-2 ${loading ? 'opacity-50' : ''}`}
             >
-              {loading ? 'Memproses...' : 'Konfirmasi Barang Masuk'}
+              {loading ? 'Memproses...' : 'Konfirmasi Kirim Material'}
             </button>
           </div>
         </form>
