@@ -7,7 +7,7 @@ import { useAuth } from "@/components/hooks/useAuth"
 import { useState, useEffect, useRef } from "react"
 import { 
   User, BarChart3, LogOut, Home, Package, 
-  Truck, FileText, Database, ChevronDown, Activity, Layers
+  Truck, FileText, Database, ChevronDown, Activity, Layers, Archive, Boxes
 } from "lucide-react"
 
 export function Navbar() {
@@ -134,6 +134,18 @@ export function Navbar() {
                 <Link href="/material-area/production" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
                   <div className="bg-emerald-100 p-2 rounded-lg mr-4"><Activity className="h-4 w-4 text-emerald-600" /></div>
                   <div className="flex flex-col"><span className="text-sm font-bold">Produksi (Out)</span><span className="text-[10px] text-gray-400">Potong Stok via BOM</span></div>
+                </Link>
+                <Link
+                  href="/material-area/simulation" className="flex items-center px-5 py-3 hover:bg-emerald-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>
+                  <div className="bg-emerald-100 p-2 rounded-lg mr-4">
+                    <Activity className="h-4 w-4 text-emerald-600" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold">Simulasi Material</span>
+                    <span className="text-[10px] text-gray-400">
+                      Hitung Qty ↔ Kg (Tanpa Potong Stok)
+                    </span>
+                  </div>
                 </Link>
                 <div className="border-t mx-4 my-2"></div>
                 <Link href="/material-area/history" className="flex items-center px-5 py-3 hover:bg-gray-50 text-gray-700 transition" onClick={() => setShowMaterialMenu(false)}>

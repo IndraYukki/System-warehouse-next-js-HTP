@@ -90,6 +90,7 @@ export async function GET(request: Request) {
         'Trans (g/kg)',
         'Awal (g/kg)',
         'Akhir (g/kg)',
+        'Deskripsi',
         'Waktu'
       ].join(DELIMITER);
 
