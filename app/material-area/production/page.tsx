@@ -264,12 +264,12 @@ export default function ProductionOutbound() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-emerald-100 p-3 rounded-lg">
                       <div className="font-bold text-emerald-700">Stock ORI</div>
-                      <div>{selectedBom.stock_ori_kg} Kg</div>
+                      <div>{Number(selectedBom.stock_ori_kg).toFixed(Number(selectedBom.stock_ori_kg) % 1 !== 0 ? 3 : 0).replace('.', ',')} kg</div>
                     </div>
 
                     <div className="bg-orange-100 p-3 rounded-lg">
                       <div className="font-bold text-orange-700">Stock SCRAP</div>
-                      <div>{selectedBom.stock_scrap_kg} Kg</div>
+                      <div>{Number(selectedBom.stock_scrap_kg).toFixed(Number(selectedBom.stock_scrap_kg) % 1 !== 0 ? 3 : 0).replace('.', ',')} kg</div>
                     </div>
                   </div>
 
@@ -280,14 +280,14 @@ export default function ProductionOutbound() {
                     <div className="flex justify-between">
                       <span>ORI</span>
                       <span className="font-bold text-emerald-600">
-                        {oriKg.toFixed(3)} Kg
+                        {Number(oriKg).toFixed(Number(oriKg) % 1 !== 0 ? 3 : 0).replace('.', ',')} kg
                       </span>
                     </div>
 
                     <div className="flex justify-between">
                       <span>SCRAP</span>
                       <span className="font-bold text-orange-600">
-                        {scrapKg.toFixed(3)} Kg
+                        {Number(scrapKg).toFixed(Number(scrapKg) % 1 !== 0 ? 3 : 0).replace('.', ',')} kg
                       </span>
                     </div>
 
@@ -295,7 +295,7 @@ export default function ProductionOutbound() {
 
                     <div className="flex justify-between text-lg font-black">
                       <span>TOTAL</span>
-                      <span>{totalKg.toFixed(3)} Kg</span>
+                      <span>{Number(totalKg).toFixed(Number(totalKg) % 1 !== 0 ? 3 : 0).replace('.', ',')} kg</span>
                     </div>
 
                     <p className="text-xs text-gray-400 italic text-center">

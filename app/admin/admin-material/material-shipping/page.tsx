@@ -152,14 +152,14 @@ export default function MaterialInbound() {
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                     <div className="text-sm text-blue-700 font-bold">Stock ORI</div>
                     <div className="text-xl font-black text-blue-900">
-                      {selectedMaterial?.stock_ori_kg ?? "—"} Kg
+                      {selectedMaterial?.stock_ori_kg !== undefined ? Number(selectedMaterial.stock_ori_kg).toFixed(Number(selectedMaterial.stock_ori_kg) % 1 !== 0 ? 3 : 0).replace('.', ',') : "—"} kg
                     </div>
                   </div>
 
                   <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
                     <div className="text-sm text-orange-700 font-bold">Stock SCRAP</div>
                     <div className="text-xl font-black text-orange-900">
-                      {selectedMaterial?.stock_scrap_kg ?? "—"} Kg
+                      {selectedMaterial?.stock_scrap_kg !== undefined ? Number(selectedMaterial.stock_scrap_kg).toFixed(Number(selectedMaterial.stock_scrap_kg) % 1 !== 0 ? 3 : 0).replace('.', ',') : "—"} kg
                     </div>
                   </div>
                </div>
