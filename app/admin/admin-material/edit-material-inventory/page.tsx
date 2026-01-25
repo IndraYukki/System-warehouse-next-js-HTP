@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import AddMaterialModal from '@/components/material/AddMaterialModal';
+import { PageGuard } from "@/components/PageGuard";
 
 export default function MaterialInventory() {
   const [materials, setMaterials] = useState([]);
@@ -148,6 +149,7 @@ export default function MaterialInventory() {
   if (loading) return <div className="p-10 text-center italic text-gray-500">Memuat data inventory...</div>;
 
   return (
+    <PageGuard>
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b pb-4">
         <div>
@@ -394,5 +396,6 @@ export default function MaterialInventory() {
         </div>
       )}
     </div>
+    </PageGuard>
   );
 }

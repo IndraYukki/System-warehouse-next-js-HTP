@@ -1,17 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Package, ChevronLeft, ChevronRight, Download, Edit } from "lucide-react"
-import { format } from "date-fns"
-import { id } from "date-fns/locale"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/components/hooks/useAuth"
-import { RoleProtected } from "@/components/role-protected"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Package, ChevronLeft, ChevronRight, Download, Edit } from "lucide-react";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+import { PageGuard } from "@/components/PageGuard";
+
 
 interface InventoryItem {
   id: number
@@ -45,7 +45,7 @@ export default function AdminEditInventoryPage() {
   const [racks, setRacks] = useState<{ id: number; alamat_rak: string; zona: string }[]>([])
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const router = useRouter()
-  const { user, loading: authLoading } = useAuth()
+
 
   const fetchInventory = async () => {
     try {
@@ -167,26 +167,9 @@ export default function AdminEditInventoryPage() {
     }
   };
 
-  // Tampilkan loading jika auth masih loading
-  if (authLoading) {
-    return (
-      <div className="container mx-auto py-6 sm:py-10 px-4">
-        <div className="text-center py-8 text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
 
   return (
-    <RoleProtected
-      allowedRoles={['admin']}
-      fallback={
-        <div className="container mx-auto py-6 sm:py-10 px-4">
-          <div className="text-center py-10 text-red-500">
-            Anda tidak memiliki akses ke halaman ini. Hanya admin yang dapat mengedit inventory.
-          </div>
-        </div>
-      }
-    >
+    <PageGuard>
       <div className="container mx-auto py-6 sm:py-10 px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Edit Inventory</h1>
@@ -440,6 +423,6 @@ export default function AdminEditInventoryPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </RoleProtected>
+      </PageGuard>
   )
 }

@@ -162,20 +162,20 @@ export function Navbar() {
               <Button variant="outline" disabled className="animate-pulse text-white">Loading...</Button>
             ) : isLoggedIn ? (
               <div className="relative" ref={dropdownRef}>
-                <Button variant="outline" onClick={() => setShowDropdown(!showDropdown)} className="border-cyan-300 text-white hover:bg-cyan-700">
+                <Button onClick={() => setShowDropdown(!showDropdown)} className="text-white border-red-700 hover:bg-blue-800">
                   <User className="mr-2 h-4 w-4 text-white" />
                   {user?.nama_panggilan || "Akun"}
                 </Button>
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-52 bg-white/95 backdrop-blur-0 border border-cyan-200 rounded-xl shadow-xl z-50 py-2 overflow-hidden">
-                    {(user.role === 'admin' || user.role === 'manager' || user.role === 'user') && (
-                      <>
-                        <Link href="/admin/dashboard" className="flex items-center px-4 py-2.5 hover:bg-gray-50 text-sm transition" onClick={() => setShowDropdown(false)}>
-                          <BarChart3 className="mr-3 h-4 w-4 text-blue-600" /> Dashboard Admin
-                        </Link>
-                        
-                      </>
-                    )}
+                    <Link
+                      href="/admin/dashboard"
+                      className="flex items-center px-4 py-2.5 hover:bg-gray-50 text-sm transition"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      <BarChart3 className="mr-3 h-4 w-4 text-blue-600" /> Dashboard Admin
+                    </Link>
+
                     <div className="border-t my-1"></div>
                     <button onClick={handleLogout} className="flex items-center w-full px-4 py-2.5 hover:bg-red-50 text-sm text-red-600 font-bold transition">
                       <LogOut className="mr-3 h-4 w-4" /> Logout

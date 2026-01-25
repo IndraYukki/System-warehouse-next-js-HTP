@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/components/hooks/useAuth";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation"; // Tidak digunakan untuk kontrol akses
 
 interface WithRoleProtectionOptions {
   allowedRoles: string[];
@@ -13,36 +13,19 @@ export function withRoleProtection<P extends object>(
   Component: React.ComponentType<P>,
   options: WithRoleProtectionOptions
 ) {
+  // --- BYPASS ACCESS CONTROL ---
+  // Nonaktifkan pengecekan role dan redirect. Selalu tampilkan komponen.
+  // useAuth() mungkin masih dipanggil untuk keperluan lain di dalam Component,
+  // tetapi hasilnya tidak digunakan untuk kontrol akses dalam HOC ini.
+
+  // const { user, loading, isLoggedIn } = useAuth(); // Tidak digunakan untuk kontrol akses
+  // const router = useRouter(); // Tidak digunakan untuk kontrol akses
+  // const [hasAccess, setHasAccess] = useState<boolean | null>(null); // Tidak digunakan untuk kontrol akses
+
+  // useEffect(() => { ... }, [...]); // Tidak digunakan untuk kontrol akses
+
+  // Langsung render komponen tanpa pengecekan
   return function RoleProtectedComponent(props: P) {
-    const { user, loading, isLoggedIn } = useAuth();
-    const router = useRouter();
-    const [hasAccess, setHasAccess] = useState<boolean | null>(null);
-
-    useEffect(() => {
-      if (!loading) {
-        if (!isLoggedIn) {
-          // Jika belum login, redirect ke login
-          router.push('/login');
-        } else if (user && options.allowedRoles.includes(user.role)) {
-          // Jika sudah login dan memiliki role yang diizinkan
-          setHasAccess(true);
-        } else {
-          // Jika tidak memiliki akses, redirect ke path yang ditentukan
-          router.push(options.redirectPath || '/');
-          setHasAccess(false);
-        }
-      }
-    }, [user, loading, isLoggedIn, router, options.allowedRoles, options.redirectPath]);
-
-    if (hasAccess === null || loading) {
-      return <div>Loading...</div>;
-    }
-
-    if (hasAccess) {
-      return <Component {...props} />;
-    }
-
-    // Ini hanya akan muncul sebentar sebelum redirect
-    return <div>Checking access...</div>;
+    return <Component {...props} />;
   };
 }

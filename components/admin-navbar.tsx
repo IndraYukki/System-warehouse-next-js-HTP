@@ -111,7 +111,7 @@ export function AdminNavbar() {
           </Button>
 
           {/* Statistik - hanya untuk admin dan manager */}
-          {(user?.role === 'admin' || user?.role === 'manager') && (
+          
             <Button
               variant={pathname === "/admin/statistics" ? "default" : "ghost"}
               asChild
@@ -122,7 +122,7 @@ export function AdminNavbar() {
                 Statistik
               </Link>
             </Button>
-          )}
+          
 
           {/* Dropdown Admin Finish Goods */}
           <div className="relative" ref={fgRef}>
@@ -145,19 +145,19 @@ export function AdminNavbar() {
                   <div className="flex flex-col"><span className="text-sm font-bold">Status Rak</span><span className="text-[10px] text-gray-400">Monitor Rak Gudang</span></div>
                 </Link>
 
-                {(user?.role === 'admin' || user?.role === 'manager') && (
+               
                   <Link href="/admin/edit-product" className="flex items-center px-5 py-3 hover:bg-blue-50 text-gray-700 transition" onClick={() => setShowFGMenu(false)}>
                     <div className="bg-blue-100 p-2 rounded-lg mr-4"><Edit className="h-4 w-4 text-blue-600" /></div>
                     <div className="flex flex-col"><span className="text-sm font-bold">Edit Product</span><span className="text-[10px] text-gray-400">Kelola Produk FG</span></div>
                   </Link>
-                )}
+                
 
-                {user?.role === 'admin' && (
+          
                   <Link href="/admin/edit-inventory" className="flex items-center px-5 py-3 hover:bg-blue-50 text-gray-700 transition" onClick={() => setShowFGMenu(false)}>
                     <div className="bg-blue-100 p-2 rounded-lg mr-4"><Edit className="h-4 w-4 text-blue-600" /></div>
                     <div className="flex flex-col"><span className="text-sm font-bold">Edit Inventory</span><span className="text-[10px] text-gray-400">Kelola Inventaris FG</span></div>
                   </Link>
-                )}
+                
               </div>
             )}
           </div>
@@ -200,9 +200,9 @@ export function AdminNavbar() {
           {!loading && user && (
             <div className="relative" ref={dropdownRef}>
               <Button
-                variant="outline"
+              
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="text-white border-cyan-300 hover:bg-cyan-700"
+                className="text-white border-red-700 hover:bg-blue-800"
               >
                 <User className="mr-2 h-4 w-4" /> {user.nama_panggilan}
               </Button>

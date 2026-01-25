@@ -1,8 +1,8 @@
 "use client"
 
-import { ProductTable } from "@/components/product-table"
-import { useEffect } from "react"
-import { RoleProtected } from "@/components/role-protected"
+import { ProductTable } from "@/components/product-table";
+import { useEffect } from "react";
+import { PageGuard } from "@/components/PageGuard";
 
 export default function AdminEditProductPage() {
   useEffect(() => {
@@ -14,16 +14,7 @@ export default function AdminEditProductPage() {
   }, []);
 
   return (
-    <RoleProtected
-      allowedRoles={['admin', 'manager']}
-      fallback={
-        <div className="container mx-auto py-10 px-4">
-          <div className="text-center py-10 text-red-500">
-            Anda tidak memiliki akses ke halaman ini. Hanya admin dan manager yang dapat mengedit produk.
-          </div>
-        </div>
-      }
-    >
+     <PageGuard>
       <div className="container mx-auto py-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Update Product</h1>
@@ -31,6 +22,6 @@ export default function AdminEditProductPage() {
         </div>
         <ProductTable />
       </div>
-    </RoleProtected>
+    </PageGuard>
   )
 }

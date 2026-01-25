@@ -10,15 +10,13 @@ interface RoleProtectedProps {
 }
 
 export function RoleProtected({ allowedRoles, children, fallback = null }: RoleProtectedProps) {
-  const { user, loading } = useAuth();
+  // --- BYPASS ACCESS CONTROL ---
+  // Nonaktifkan pengecekan role. Selalu tampilkan children.
+  // useAuth() mungkin masih dipanggil untuk keperluan lain, tetapi
+  // hasilnya tidak digunakan untuk kontrol akses dalam komponen ini.
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // const { user, loading } = useAuth(); // Tidak digunakan untuk kontrol akses
 
-  if (!user || !allowedRoles.includes(user.role)) {
-    return fallback;
-  }
-
+  // Izinkan semua children untuk ditampilkan
   return <>{children}</>;
 }

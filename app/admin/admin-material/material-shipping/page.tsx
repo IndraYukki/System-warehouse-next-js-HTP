@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
+import { PageGuard } from "@/components/PageGuard";
 
 export default function MaterialInbound() {
   const [materials, setMaterials] = useState([]); // Still keep this for potential use
@@ -102,6 +103,7 @@ export default function MaterialInbound() {
   };
 
   return (
+    <PageGuard>
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="bg-emerald-600 p-6">
@@ -244,5 +246,6 @@ export default function MaterialInbound() {
         Catatan: Setiap inputan di sini akan otomatis menambah saldo stok di halaman Inventory.
       </p>
     </div>
+    </PageGuard>
   );
 }

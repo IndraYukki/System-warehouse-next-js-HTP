@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { Search } from 'lucide-react';
+import { PageGuard } from "@/components/PageGuard";
+export const dynamic = 'force-dynamic';
 
 export default function MasterBOM() {
   const [bomData, setBomData] = useState([]);
@@ -306,6 +308,7 @@ export default function MasterBOM() {
   };
 
   return (
+    <PageGuard>
     <div className="p-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold">Bill Of Material (BOM)</h1>
@@ -611,5 +614,6 @@ export default function MasterBOM() {
         </div>
       )}
     </div>
+    </PageGuard>
   );
 }

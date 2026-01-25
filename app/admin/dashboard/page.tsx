@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Package, Users, PackageOpen, Warehouse, Eye } from "lucide-react"
 import { useAuth } from "@/components/hooks/useAuth"
-import { RoleProtected } from "@/components/role-protected"
+
 
 interface DashboardStats {
   totalProducts: number
@@ -59,16 +59,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <RoleProtected
-      allowedRoles={['admin', 'manager', 'user']}
-      fallback={
-        <div className="container mx-auto py-10 px-4">
-          <div className="text-center py-10 text-red-500">
-            Anda tidak memiliki akses ke halaman ini.
-          </div>
-        </div>
-      }
-    >
+    
       <div className="container mx-auto py-10 px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Dashboard Admin</h1>
@@ -193,6 +184,6 @@ export default function AdminDashboardPage() {
           </Card>
         </div>
       </div>
-    </RoleProtected>
+    
   )
 }
