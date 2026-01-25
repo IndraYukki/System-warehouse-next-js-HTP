@@ -168,14 +168,12 @@ export function Navbar() {
                 </Button>
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-52 bg-white/95 backdrop-blur-0 border border-cyan-200 rounded-xl shadow-xl z-50 py-2 overflow-hidden">
-                    {(user.role === 'admin' || user.role === 'manager') && (
+                    {(user.role === 'admin' || user.role === 'manager' || user.role === 'user') && (
                       <>
                         <Link href="/admin/dashboard" className="flex items-center px-4 py-2.5 hover:bg-gray-50 text-sm transition" onClick={() => setShowDropdown(false)}>
                           <BarChart3 className="mr-3 h-4 w-4 text-blue-600" /> Dashboard Admin
                         </Link>
-                        <Link href="/admin/rack-status" className="flex items-center px-4 py-2.5 hover:bg-gray-50 text-sm transition" onClick={() => setShowDropdown(false)}>
-                          <Package className="mr-3 h-4 w-4 text-blue-600" /> Status Rak
-                        </Link>
+                        
                       </>
                     )}
                     <div className="border-t my-1"></div>
