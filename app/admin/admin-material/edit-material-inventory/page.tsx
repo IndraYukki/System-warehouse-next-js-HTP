@@ -135,14 +135,14 @@ export default function MaterialInventory() {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`${materialName} berhasil dihapus!`);
+        alert(`Material "${materialName}" berhasil dihapus!`);
         fetchMaterials(); // Refresh data
       } else {
         const errorData = await response.json();
-        alert(`Gagal menghapus ${materialName}: ${errorData.message || 'Unknown error'}`);
+        alert(`Gagal menghapus material "${materialName}": ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
-      alert(`Gagal menghapus ${materialName}: ${(error as Error).message}`);
+      alert(`Gagal menghapus material "${materialName}": ${(error as Error).message}`);
     }
   };
 

@@ -103,23 +103,6 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
   try {
     const pool = getPool();
 
-    // Check if BOM is referenced in other tables before deletion
-    const checkQueries = [
-      `SELECT COUNT(*) as count FROM material_production_reports WHERE bom_id = ?`,
-      `SELECT COUNT(*) as count FROM material_transactions WHERE bom_id = ?`
-    ];
-
-    for (const query of checkQueries) {
-      const [checkResult]: any = await pool.execute(query, [params.id]);
-      if (checkResult[0].count > 0) {
-        console.log(`Cannot delete BOM ${params.id} - it is referenced in a table`);
-        return NextResponse.json(
-          { error: "BOM tidak dapat dihapus karena sedang digunakan dalam transaksi atau laporan produksi" },
-          { status: 400 }
-        );
-      }
-    }
-
     const deleteQuery = `
       DELETE FROM material_bom
       WHERE id = ?
@@ -133,13 +116,6 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     });
   } catch (error: any) {
     console.error("Error deleting BOM:", error);
-    // Jika error adalah constraint violation, tangani secara khusus
-    if (error.code === 'ER_ROW_IS_REFERENCED_2') {
-      return NextResponse.json(
-        { error: "BOM tidak dapat dihapus karena sedang digunakan dalam transaksi atau laporan produksi" },
-        { status: 400 }
-      );
-    }
     return NextResponse.json(
       { error: error.message },
       { status: 500 }

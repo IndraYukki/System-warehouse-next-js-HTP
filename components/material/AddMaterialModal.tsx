@@ -32,16 +32,31 @@ export default function AddMaterialModal({ isOpen, onClose, onRefresh }: any) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/material", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
 
-    if (res.ok) {
-      onRefresh();
-      onClose();
-      setForm({ material_name: "", category_name: "", location: "", customer_id: "" });
+    try {
+      const res = await fetch("/api/material", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        alert(`Material "${form.material_name}" berhasil ditambahkan!`);
+        onRefresh();
+        onClose();
+        setForm({ material_name: "", category_name: "", location: "", customer_id: "" });
+      } else {
+        const errorData = await res.json();
+        // Cek apakah error karena nama material sudah ada
+        if (res.status === 400 && errorData.message && errorData.message.includes("already exists")) {
+          alert(`Gagal menambahkan material: Nama material "${form.material_name}" sudah digunakan. Nama material harus unik.`);
+        } else {
+          alert(`Gagal menambahkan material: ${errorData.message || 'Terjadi kesalahan tidak terduga'}`);
+        }
+      }
+    } catch (error) {
+      alert(`Gagal menambahkan material: ${(error as Error).message}`);
     }
   };
 
